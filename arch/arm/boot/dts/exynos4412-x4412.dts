@@ -1,0 +1,317 @@
+/*
+ * X4412 board device tree source
+ *
+ * Device tree source file for 9tripod's X4412 board which is based on
+ * Samsung's Exynos4412 SoC.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+*/
+
+/dts-v1/;
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/pwm/pwm.h>
+#include "exynos4412.dtsi"
+#include "exynos4412-ppmu-common.dtsi"
+#include "exynos-mfc-reserved-memory.dtsi"
+
+/ {
+	model = "X4412 board based on Exynos4412";
+	compatible = "9tripod,X4412", "samsung,exynos4412", "samsung,exynos4";
+
+	memory@40000000 {
+		device_type = "memory";
+		reg = <0x40000000 0x40000000>;
+	};
+
+	chosen {
+		bootargs = "console=ttySAC3,115200n8";
+		stdout-path = &serial_3;
+	};
+
+	firmware@0203F000 {
+		compatible = "samsung,secure-firmware";
+		reg = <0x0203F000 0x1000>;
+	};
+
+	fixed-rate-clocks {
+		xxti {
+			compatible = "samsung,clock-xxti";
+			clock-frequency = <0>;
+		};
+
+		xusbxti {
+			compatible = "samsung,clock-xusbxti";
+			clock-frequency = <24000000>;
+		};
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		led1 {
+			label = "led1:heart";
+			gpios = <&gpx1 6 GPIO_ACTIVE_LOW>;
+			default-state = "on";
+			linux,default-trigger = "heartbeat";
+		};
+
+		led2 {
+			label = "led2";
+			gpios = <&gpx1 7 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+		};
+
+		led3 {
+			label = "led3";
+			gpios = <&gpx2 6 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+		};
+
+		led4 {
+			label = "led4";
+			gpios = <&gpx2 7 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+			linux,default-trigger = "timer";
+		};
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+
+		left {
+			label = "Key Left";
+			linux,code = <KEY_LEFT>;
+			gpios = <&gpx1 0 GPIO_ACTIVE_LOW>;
+		};
+
+		right {
+			label = "Key Right";
+			linux,code = <KEY_RIGHT>;
+			gpios = <&gpx1 1 GPIO_ACTIVE_LOW>;
+		};
+
+		vol-up {
+			label = "Key Vol+";
+			linux,code = <KEY_UP>;
+			gpios = <&gpx1 2 GPIO_ACTIVE_LOW>;
+		};
+
+		vol-down {
+			label = "Key Vol-";
+			linux,code = <KEY_DOWN>;
+			gpios = <&gpx1 3 GPIO_ACTIVE_LOW>;
+		};
+	};
+
+
+	usb-hub {
+		compatible = "smsc,usb3503";
+		reset-gpios = <&gpc0 0 GPIO_ACTIVE_HIGH>;
+	};
+
+	backlight: lcd-blacklight {
+		compatible = "pwm-backlight";
+		enable-gpio = <&gpx3 5 GPIO_ACTIVE_HIGH>;
+		pwms = <&pwm 0 1000000 0>;
+		brightness-levels = <0 100 500 1000 1500 2000 2500 3000>;
+		default-brightness-level = <7>;
+	};
+
+	beeper {
+		compatible = "pwm-beeper";
+		pwms = <&pwm 1 100000 0>;
+		beeper-hz = <1000>;
+	};
+};
+
+&camera {
+	pinctrl-names = "default";
+	pinctrl-0 = <&cam_port_a_clk_active>;
+	status = "okay";
+	assigned-clocks = <&clock CLK_MOUT_CAM0>;
+	assigned-clock-parents = <&clock CLK_XUSBXTI>;
+
+	parallel-ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@1 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <1>;
+			
+			fimc0_ep: endpoint@0 {
+				bus-type = <0>;
+				reg = <0>;
+				remote-endpoint = <&ov2655_ep>;
+				bus-width = <8>;
+			};
+		};
+	};
+};
+
+&fimc_0 {
+	status = "okay";
+	assigned-clocks = <&clock CLK_MOUT_FIMC1>,
+	<&clock CLK_SCLK_FIMC1>;
+	assigned-clock-parents = <&clock CLK_MOUT_MPLL_USER_T>;
+	assigned-clock-rates = <0>, <176000000>;
+};
+
+&fimc_1 {
+	status = "okay";
+	assigned-clocks = <&clock CLK_MOUT_FIMC1>,
+	<&clock CLK_SCLK_FIMC1>;
+	assigned-clock-parents = <&clock CLK_MOUT_MPLL_USER_T>;
+	assigned-clock-rates = <0>, <176000000>;
+};
+
+&fimd {
+	status = "okay";
+
+	samsung,vl-col = <1024>;
+	samsung,vl-row = <600>;
+	samsung,vl-freq = <60>;
+
+	samsung,vl-vbpd = <20>;
+	samsung,vl-vfpd = <12>;
+	samsung,vl-vspw = <3>;
+	samsung,vl-hbpd = <140>;
+	samsung,vl-hfpd = <160>;
+	samsung,vl-hspw = <20>;
+
+	samsung,interface-mode = <1>;
+	samsung,rgb-mode = <0>;
+
+	samsung,vl-max-bpp = /bits/ 16 <32>;
+	samsung,vl-default-bpp = /bits/ 16 <24>;
+	samsung,vl-xres = /bits/ 16 <1024>;
+	samsung,vl-yres = /bits/ 16 <600>;
+	samsung,vl-virtual-x = /bits/ 16  <1920>;
+	samsung,vl-virtual-y = /bits/ 16  <1080>;
+};
+
+&ehci {
+	status = "okay";
+
+	port@1 {
+		status = "okay";
+	};
+};
+
+&pwm {
+	status = "okay";
+	pinctrl-0 = <&pwm0_out &pwm1_out>;
+	pinctrl-names = "default";
+	samsung,pwm-outputs = <0>, <1>;
+};
+
+&i2c_2 {
+	status = "okay";
+};
+
+&i2c_8 {
+	status = "okay";
+};
+
+&exynos_usbphy {
+	status = "okay";
+};
+
+&hsotg {
+	dr_mode = "peripheral";
+	status="okay";
+};
+
+&mshc_0 {
+	pinctrl-0 = <&sd4_clk &sd4_cmd &sd4_bus4 &sd4_bus8>;
+	pinctrl-names = "default";
+	status = "okay";
+
+	cd-gpio= <&gpk0 2 GPIO_ACTIVE_HIGH>;
+	clock-frequency = <400000000>;
+	samsung,dw-mshc-ciu-div = <0>;
+	samsung,dw-mshc-sdr-timing = <2 3>;
+	samsung,dw-mshc-ddr-timing = <1 2>;
+	bus-width = <8>;
+	cap-mmc-highspeed;
+};
+
+&sdhci_2 {
+	bus-width = <4>;
+	pinctrl-0 = <&sd2_clk &sd2_cmd &sd2_cd &sd2_bus4>;
+	pinctrl-names = "default";
+	cd-gpios = <&gpk2 2 GPIO_ACTIVE_HIGH>;
+	cd-inverted;
+	card-detect-delay = <200>;
+	cap-sd-highspeed;
+	status = "okay";
+};
+
+&serial_0 {
+	status = "okay";
+};
+
+&serial_1 {
+	status = "okay";
+};
+
+&serial_2 {
+	status = "okay";
+};
+
+&serial_3 {
+	status = "okay";
+};
+
+&i2c_0 {
+	status = "okay";
+	samsung,i2c-sda-delay = <100>;
+	samsung,i2c-max-bus-freq = <400000>;
+	pinctrl-0 = <&i2c0_bus>;
+	pinctrl-names = "default";
+
+	kxud9@18 {
+		compatible = "kionix,kxud9";
+		reg = <0x18>;
+	};
+
+	ov2655@30 {
+		compatible = "ovti,ov2655";
+		reg = <0x30>;
+		clock-frequency = <24000000>;
+		clocks = <&camera 0>;
+		clock-names = "xvclk";
+		reset-gpio = <&gpj1 4 GPIO_ACTIVE_LOW>;
+		power-gpio = <&gpx3 4 GPIO_ACTIVE_HIGH>;
+
+		port {
+			ov2655_ep: endpoint {
+				remote-endpoint = <&fimc0_ep>;
+				bus-width = <8>;
+			};
+		};
+	};
+};
+
+&i2c_1 {
+	status = "okay";
+	pinctrl-0 = <&i2c1_bus>;
+	pinctrl-names = "default";
+
+	gsl1680@40 {
+		compatible = "silead,gsl1680";
+		reg = <0x40>;
+		interrupt-parent = <&gpx0>;
+		interrupts = <7 IRQ_TYPE_EDGE_FALLING>;
+		power-gpios = <&gpx0 6 GPIO_ACTIVE_LOW>;
+		touchscreen-size-x = <1024>;
+		touchscreen-size-y = <600>;
+		silead,max-fingers = <5>;
+		firmware-name = "silead-gsl1680.fw";
+		status = "disabled";
+	};
+};
