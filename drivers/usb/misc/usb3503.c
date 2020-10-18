@@ -42,15 +42,15 @@
 #define USB3503_RESET		0xff
 
 struct usb3503 {
-	enum usb3503_mode	mode;
-	struct regmap		*regmap;
-	struct device		*dev;
-	struct clk		*clk;
-	u8	port_off_mask;
-	int	gpio_intn;
-	int	gpio_reset;
-	int	gpio_connect;
-	bool	secondary_ref_clk;
+	enum usb3503_mode mode;
+	struct regmap *regmap;
+	struct device *dev;
+	struct clk *clk;
+	u8 port_off_mask;
+	int gpio_intn;
+	int gpio_reset;
+	int gpio_connect;
+	bool secondary_ref_clk;
 };
 
 static int usb3503_reset(struct usb3503 *hub, int state)
@@ -62,7 +62,7 @@ static int usb3503_reset(struct usb3503 *hub, int state)
 		gpio_set_value_cansleep(hub->gpio_reset, state);
 
 	/* Wait T_HUBINIT == 4ms for hub logic to stabilize */
-	if (state)
+	if (!state)
 		usleep_range(4000, 10000);
 
 	return 0;
@@ -73,13 +73,13 @@ static int usb3503_connect(struct usb3503 *hub)
 	struct device *dev = hub->dev;
 	int err;
 
-	usb3503_reset(hub, 1);
+	usb3503_reset(hub, 0);
 
 	if (hub->regmap) {
 		/* SP_ILOCK: set connect_n, config_n for config */
 		err = regmap_write(hub->regmap, USB3503_SP_ILOCK,
-			   (USB3503_SPILOCK_CONNECT
-				 | USB3503_SPILOCK_CONFIG));
+				   (USB3503_SPILOCK_CONNECT
+				    | USB3503_SPILOCK_CONFIG));
 		if (err < 0) {
 			dev_err(dev, "SP_ILOCK failed (%d)\n", err);
 			return err;
@@ -88,8 +88,8 @@ static int usb3503_connect(struct usb3503 *hub)
 		/* PDS : Set the ports which are disabled in self-powered mode. */
 		if (hub->port_off_mask) {
 			err = regmap_update_bits(hub->regmap, USB3503_PDS,
-					hub->port_off_mask,
-					hub->port_off_mask);
+						 hub->port_off_mask,
+						 hub->port_off_mask);
 			if (err < 0) {
 				dev_err(dev, "PDS failed (%d)\n", err);
 				return err;
@@ -135,7 +135,7 @@ static int usb3503_switch_mode(struct usb3503 *hub, enum usb3503_mode mode)
 		break;
 
 	case USB3503_MODE_STANDBY:
-		usb3503_reset(hub, 0);
+		usb3503_reset(hub, 1);
 		dev_info(dev, "switched to STANDBY mode\n");
 		break;
 
@@ -160,17 +160,18 @@ static int usb3503_probe(struct usb3503 *hub)
 	struct device *dev = hub->dev;
 	struct usb3503_platform_data *pdata = dev_get_platdata(dev);
 	struct device_node *np = dev->of_node;
+	struct gpio_desc *desc;
 	int err;
 	u32 mode = USB3503_MODE_HUB;
 	const u32 *property;
 	int len;
 
 	if (pdata) {
-		hub->port_off_mask	= pdata->port_off_mask;
-		hub->gpio_intn		= pdata->gpio_intn;
-		hub->gpio_connect	= pdata->gpio_connect;
-		hub->gpio_reset		= pdata->gpio_reset;
-		hub->mode		= pdata->initial_mode;
+		hub->port_off_mask = pdata->port_off_mask;
+		hub->gpio_intn = pdata->gpio_intn;
+		hub->gpio_connect = pdata->gpio_connect;
+		hub->gpio_reset = pdata->gpio_reset;
+		hub->mode = pdata->initial_mode;
 	} else if (np) {
 		struct clk *clk;
 		u32 rate = 0;
@@ -193,7 +194,7 @@ static int usb3503_probe(struct usb3503 *hub)
 			default:
 				dev_err(dev,
 					"unsupported reference clock rate (%d)\n",
-					(int) rate);
+					(int)rate);
 				return -EINVAL;
 			}
 		}
@@ -201,7 +202,7 @@ static int usb3503_probe(struct usb3503 *hub)
 		clk = devm_clk_get(dev, "refclk");
 		if (IS_ERR(clk) && PTR_ERR(clk) != -ENOENT) {
 			dev_err(dev, "unable to request refclk (%ld)\n",
-					PTR_ERR(clk));
+				PTR_ERR(clk));
 			return PTR_ERR(clk);
 		}
 
@@ -213,7 +214,7 @@ static int usb3503_probe(struct usb3503 *hub)
 				if (err) {
 					dev_err(dev,
 						"unable to set reference clock rate to %d\n",
-						(int) rate);
+						(int)rate);
 					return err;
 				}
 			}
@@ -236,15 +237,44 @@ static int usb3503_probe(struct usb3503 *hub)
 			}
 		}
 
-		hub->gpio_intn	= of_get_named_gpio(np, "intn-gpios", 0);
-		if (hub->gpio_intn == -EPROBE_DEFER)
-			return -EPROBE_DEFER;
-		hub->gpio_connect = of_get_named_gpio(np, "connect-gpios", 0);
-		if (hub->gpio_connect == -EPROBE_DEFER)
-			return -EPROBE_DEFER;
-		hub->gpio_reset = of_get_named_gpio(np, "reset-gpios", 0);
-		if (hub->gpio_reset == -EPROBE_DEFER)
-			return -EPROBE_DEFER;
+		desc = devm_gpiod_get_optional(dev, "intn",
+					       (hub->secondary_ref_clk ?
+						GPIOD_OUT_LOW :
+						GPIOD_OUT_HIGH));
+		if (IS_ERR(desc)) {
+			dev_dbg(dev, "Error while getting interrupt gpio\n");
+			return PTR_ERR(desc);
+		}
+
+		if (!desc)
+			dev_dbg(dev, "interrupt gpio is not assigned!\n");
+		else
+			hub->gpio_intn = desc_to_gpio(desc);
+
+		desc = devm_gpiod_get_optional(dev, "connect", GPIOD_OUT_LOW);
+		if (IS_ERR(desc)) {
+			dev_dbg(dev, "Error while getting connect gpio\n");
+			return PTR_ERR(desc);
+		}
+
+		if (!desc)
+			dev_dbg(dev, "connect gpio is not assigned\n");
+		else
+			hub->gpio_connect = desc_to_gpio(desc);
+
+		desc = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
+		if (IS_ERR(desc)) {
+			dev_dbg(dev, "Error while getting reset gpio\n");
+			return PTR_ERR(desc);
+		}
+
+		if (!desc)
+			dev_dbg(dev, "reset gpio is not assigned\n");
+		else
+			hub->gpio_reset = desc_to_gpio(desc);
+		/* Datasheet defines a hardware reset to be at least 100us */
+		usleep_range(100, 10000);
+
 		of_property_read_u32(np, "initial-mode", &mode);
 		hub->mode = mode;
 	}
@@ -252,47 +282,10 @@ static int usb3503_probe(struct usb3503 *hub)
 	if (hub->port_off_mask && !hub->regmap)
 		dev_err(dev, "Ports disabled with no control interface\n");
 
-	if (gpio_is_valid(hub->gpio_intn)) {
-		int val = hub->secondary_ref_clk ? GPIOF_OUT_INIT_LOW :
-						   GPIOF_OUT_INIT_HIGH;
-		err = devm_gpio_request_one(dev, hub->gpio_intn, val,
-					    "usb3503 intn");
-		if (err) {
-			dev_err(dev,
-				"unable to request GPIO %d as interrupt pin (%d)\n",
-				hub->gpio_intn, err);
-			return err;
-		}
-	}
-
-	if (gpio_is_valid(hub->gpio_connect)) {
-		err = devm_gpio_request_one(dev, hub->gpio_connect,
-				GPIOF_OUT_INIT_LOW, "usb3503 connect");
-		if (err) {
-			dev_err(dev,
-				"unable to request GPIO %d as connect pin (%d)\n",
-				hub->gpio_connect, err);
-			return err;
-		}
-	}
-
-	if (gpio_is_valid(hub->gpio_reset)) {
-		err = devm_gpio_request_one(dev, hub->gpio_reset,
-				GPIOF_OUT_INIT_LOW, "usb3503 reset");
-		/* Datasheet defines a hardware reset to be at least 100us */
-		usleep_range(100, 10000);
-		if (err) {
-			dev_err(dev,
-				"unable to request GPIO %d as reset pin (%d)\n",
-				hub->gpio_reset, err);
-			return err;
-		}
-	}
-
 	usb3503_switch_mode(hub, hub->mode);
 
 	dev_info(dev, "%s: probed in %s mode\n", __func__,
-			(hub->mode == USB3503_MODE_HUB) ? "hub" : "standby");
+		 (hub->mode == USB3503_MODE_HUB) ? "hub" : "standby");
 
 	return 0;
 }
@@ -383,18 +376,18 @@ static int usb3503_i2c_resume(struct device *dev)
 #endif
 
 static SIMPLE_DEV_PM_OPS(usb3503_i2c_pm_ops, usb3503_i2c_suspend,
-		usb3503_i2c_resume);
+			 usb3503_i2c_resume);
 
 static const struct i2c_device_id usb3503_id[] = {
-	{ USB3503_I2C_NAME, 0 },
-	{ }
+	{USB3503_I2C_NAME, 0},
+	{}
 };
 MODULE_DEVICE_TABLE(i2c, usb3503_id);
 
 #ifdef CONFIG_OF
 static const struct of_device_id usb3503_of_match[] = {
-	{ .compatible = "smsc,usb3503", },
-	{ .compatible = "smsc,usb3503a", },
+	{.compatible = "smsc,usb3503",},
+	{.compatible = "smsc,usb3503a",},
 	{},
 };
 MODULE_DEVICE_TABLE(of, usb3503_of_match);
@@ -402,22 +395,22 @@ MODULE_DEVICE_TABLE(of, usb3503_of_match);
 
 static struct i2c_driver usb3503_i2c_driver = {
 	.driver = {
-		.name = USB3503_I2C_NAME,
-		.pm = &usb3503_i2c_pm_ops,
-		.of_match_table = of_match_ptr(usb3503_of_match),
+		   .name = USB3503_I2C_NAME,
+		   .pm = &usb3503_i2c_pm_ops,
+		   .of_match_table = of_match_ptr(usb3503_of_match),
 	},
-	.probe		= usb3503_i2c_probe,
-	.remove		= usb3503_i2c_remove,
-	.id_table	= usb3503_id,
+	.probe = usb3503_i2c_probe,
+	.remove = usb3503_i2c_remove,
+	.id_table = usb3503_id,
 };
 
 static struct platform_driver usb3503_platform_driver = {
 	.driver = {
-		.name = USB3503_I2C_NAME,
-		.of_match_table = of_match_ptr(usb3503_of_match),
+		   .name = USB3503_I2C_NAME,
+		   .of_match_table = of_match_ptr(usb3503_of_match),
 	},
-	.probe		= usb3503_platform_probe,
-	.remove		= usb3503_platform_remove,
+	.probe = usb3503_platform_probe,
+	.remove = usb3503_platform_remove,
 };
 
 static int __init usb3503_init(void)
@@ -435,6 +428,7 @@ static int __init usb3503_init(void)
 
 	return 0;
 }
+
 module_init(usb3503_init);
 
 static void __exit usb3503_exit(void)
@@ -442,6 +436,7 @@ static void __exit usb3503_exit(void)
 	platform_driver_unregister(&usb3503_platform_driver);
 	i2c_del_driver(&usb3503_i2c_driver);
 }
+
 module_exit(usb3503_exit);
 
 MODULE_AUTHOR("Dongjin Kim <tobetter@gmail.com>");
