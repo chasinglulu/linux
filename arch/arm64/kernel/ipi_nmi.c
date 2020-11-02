@@ -8,6 +8,7 @@
 
 #include <linux/interrupt.h>
 #include <linux/irq.h>
+#include <linux/kgdb.h>
 #include <linux/nmi.h>
 #include <linux/smp.h>
 
@@ -46,6 +47,11 @@ static irqreturn_t ipi_nmi_handler(int irq, void *data)
 
 	if (nmi_cpu_backtrace(get_irq_regs()))
 		ret = IRQ_HANDLED;
+
+#ifdef CONFIG_KGDB
+	if (!kgdb_nmicallback(smp_processor_id(), get_irq_regs()))
+		ret = IRQ_HANDLED;
+#endif
 
 	return ret;
 }
