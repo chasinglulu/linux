@@ -451,6 +451,29 @@
 			};
 		};
 
+		ddr: ddr-apb@4c000000 {
+			compatible = "simple-bus";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges = <0 0 0x4c000000 0x4000000>;
+
+			perf_monitor0: perf-monitor@1010000 {
+				compatible = "hobot,j5-ddrmonitor";
+				reg = <0x1010000 0x1000>;
+				interrupts = <GIC_SPI 141 IRQ_TYPE_LEVEL_HIGH>;
+				core-index = <0>;
+				status = "disabled";
+			};
+
+			perf_monitor1: perf-monitor@3010000 {
+				compatible = "hobot,j5-ddrmonitor";
+				reg = <0x3010000 0x1000>;
+				interrupts = <GIC_SPI 158 IRQ_TYPE_LEVEL_HIGH>;
+				core-index = <1>;
+				status = "disabled";
+			};
+		};
+
 		safety: safety-apb@43800000 {
 			compatible = "simple-bus";
 			#address-cells = <1>;

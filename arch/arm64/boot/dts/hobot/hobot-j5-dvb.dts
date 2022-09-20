@@ -44,6 +44,14 @@
 	status = "okay";
 };
 
+&perf_monitor0 {
+	status = "okay";
+};
+
+&perf_monitor1 {
+	status = "okay";
+};
+
 &mmc0 {
 	status = "okay";
 	hs400-clk-driving = <6>;
