@@ -325,4 +325,16 @@ config ARCH_ZYNQMP
 	help
 	  This enables support for Xilinx ZynqMP Family
 
+config ARCH_HOBOT
+	bool "Horizon Robotic SoC Platforms"
+	help
+	  This enables support for the ARMv8 based Horizon Robotic SoC,
+	  like the Journey 5.
+
+config HOBOT_J5
+	bool "Horizon Robotic Journey 5 SoC"
+	depends on ARCH_HOBOT
+	help
+	  This enables support for the ARMv8 based Horizon Robotic J5 SoC.
+
 endmenu # "Platform selection"

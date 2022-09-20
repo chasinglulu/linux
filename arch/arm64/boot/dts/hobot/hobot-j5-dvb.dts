@@ -1,0 +1,106 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2021 Beijing Horizon Robotics Co., Ltd
+ */
+
+/dts-v1/;
+#include "hobot-j5-soc.dtsi"
+
+/ {
+	model = "Horizon Robotics Journey 5 DVB";
+	compatible = "hobot,j5-dvb", "hobot,j5";
+
+
+	chosen {
+		stdout-path = "serial1";
+		bootargs="earlycon=uart8250,mmio32,0x43b90000 init=/init root=/dev/ram0 rw rootwait debug";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		module@0 {
+			compatible = "xen,linux-zimage", "xen,multiboot-module";
+			reg = <0x83000000 0x02000000>;
+			bootargs = "rw root=/dev/mmcblk0p33 rdinit=/init console=hvc0,921600n8 earlycon=xenboot loglevel=10";
+		};
+		module@1 {
+			compatible = "xen,linux-initrd", "xen,multiboot-module";
+			reg = <0x85000000 0x02000000>;
+		};
+	};
+};
+
+&uart1 {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&gpio2 {
+	status = "okay";
+};
+
+&mmc0 {
+	status = "okay";
+	hs400-clk-driving = <6>;
+	hs400-cmd-driving = <4>;
+	hs400-data-driving = <4>;
+	hs200-clk-driving = <6>;
+	hs200-cmd-driving = <4>;
+	hs200-data-driving = <4>;
+	hs-mmc-clk-driving = <6>;
+	hs-mmc-cmd-driving = <3>;
+	hs-mmc-data-driving = <4>;
+	id-mode-clk-driving = <6>;
+	id-mode-cmd-driving = <3>;
+	id-mode-data-driving = <6>;
+	default-driving = <6>;
+};
+
+&mmc1 {
+	status = "okay";
+	sdr104-clk-driving = <6>;
+	sdr104-cmd-driving = <4>;
+	sdr104-data-driving = <4>;
+	hs-sd-clk-driving = <6>;
+	hs-sd-cmd-driving = <3>;
+	hs-sd-data-driving = <4>;
+	id-mode-clk-driving = <6>;
+	id-mode-cmd-driving = <3>;
+	id-mode-data-driving = <6>;
+	default-driving = <6>;
+};
+
+&eth0 {
+	status = "okay";
+	phy-less = <0x0>;
+	phy-handle = <&phy0>;
+	phy-mode = "rgmii-id";
+	mdio {
+		#address-cells = <0x1>;
+		#size-cells = <0x0>;
+		phy0: phy@7 {
+			compatible = "ethernet-phy-ieee802.3-c45";
+			reg = <0x7>;
+		};
+	};
+};
+
+&eth1 {
+	status = "okay";
+	phy-less = <0x0>;
+	phy-handle = <&phy1>;
+	phy-mode = "rgmii-id";
+	mdio {
+		#address-cells = <0x1>;
+		#size-cells = <0x0>;
+		phy1: phy@e {
+			compatible = "marvell,88E1518","ethernet-phy-ieee802.3-c22";
+			reg = <0xe>;
+		};
+	};
+};
