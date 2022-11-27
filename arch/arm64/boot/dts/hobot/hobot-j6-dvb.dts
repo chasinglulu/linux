@@ -1,0 +1,27 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2021 Beijing Horizon Robotics Co., Ltd
+ */
+
+/dts-v1/;
+#include "hobot-j6-soc.dtsi"
+
+/ {
+	model = "Horizon Robotics Journey 6 DVB";
+	compatible = "hobot,j6-dvb", "hobot,j6";
+
+	chosen {
+		stdout-path = &uart1;
+	};
+};
+
+&uart1 {
+	status = "okay";
+};
+
+&mmc0 {
+	status = "okay";
+};
+&mmc1 {
+	status = "disabled";
+};

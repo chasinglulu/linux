@@ -1,0 +1,168 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2021 Beijing Horizon Robotics Co., Ltd
+ */
+
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+/ {
+	interrupt-parent = <&gic>;
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	aliases {
+		serial0 = &uart0;
+		serial1 = &uart1;
+	};
+
+	cpus {
+		#address-cells = <2>;
+		#size-cells = <0>;
+
+		cpu0: cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a78ae";
+			reg = <0x0 0x0>;
+			enable-method = "psci";
+		};
+
+		cpu1: cpu@100 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a78ae";
+			reg = <0x0 0x100>;
+			enable-method = "psci";
+		};
+
+		cpu2: cpu@200 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a78ae";
+			reg = <0x0 0x200>;
+			enable-method = "psci";
+		};
+
+		cpu3: cpu@300 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a78ae";
+			reg = <0x0 0x300>;
+			enable-method = "psci";
+		};
+	};
+
+	psci {
+		compatible = "arm,psci-1.0", "arm,psci-0.2";
+		migrate = <0xc4000005>;
+		cpu_on = <0xc4000003>;
+		cpu_suspend = <0xc4000001>;
+		method = "smc";
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+				<GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+				<GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+				<GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>;
+	};
+
+
+	gic: interrupt-controller@58000000 {
+		compatible = "arm,gic-v3";
+		#interrupt-cells = <3>;
+		#address-cells = <2>;
+		#size-cells = <2>;
+		interrupt-controller;
+		reg = <0x0 0x58000000 0x0 0x10000>,
+			<0x0 0x58040000 0x0 0x100000>;
+		interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
+	clk25: clk25 {
+		compatible = "fixed-clock";
+		clock-frequency = <25000000>;
+		#clock-cells = <0>;
+	};
+
+	clk200: clk200 {
+		compatible = "fixed-clock";
+		clock-frequency = <200000000>;
+		#clock-cells = <0>;
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		uart0: serial@43b80000 {
+			compatible = "ns16550";
+			reg = <0x0 0x43b80000 0x0 0x1000>;
+			interrupts = <GIC_SPI 73 IRQ_TYPE_LEVEL_HIGH>;
+			clock-frequency = <192000000>; //192MHz
+			reg-io-width = <4>;
+			reg-shift = <2>;
+			status = "disabled";
+		};
+
+		uart1: serial@43b90000 {
+			compatible = "ns16550";
+			reg = <0x0 0x43b90000 0x0 0x1000>;
+			interrupts = <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>;
+			clock-frequency = <192000000>; //192MHz
+			reg-io-width = <4>;
+			reg-shift = <2>;
+			status = "disabled";
+		};
+
+		peri: peri-apb@0x48000000 {
+			compatible = "simple-bus";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges = <0 0 0x48000000 0x220000>;
+
+			mmc0: sdhci@30000 {
+				compatible = "cdns,sd4hc";
+				reg = <0x30000 0x10000>;
+				interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>;
+				clocks = <&clk200>;
+				sdhci-caps-mask = <0xffffffff 0xffffffff>;
+				sdhci-caps = <0x00002807 0x37ec6481>;
+				max-frequency = <200000000>;
+				bus-width = <8>;
+				cap-mmc-highspeed;
+				mmc-ddr-1_8v;
+				mmc-hs200-1_8v;
+				cdns,phy-input-delay-sd-default = <8>;
+				cdns,phy-input-delay-mmc-highspeed = <3>;
+				cdns,phy-input-delay-mmc-ddr = <3>;
+				cdns,phy-dll-delay-strobe = <33>; /* for hs400 */
+				cdns,phy-dll-delay-sdclk = <45>;
+				cdns,phy-dll-delay-sdclk-hsmmc = <45>; /* golden for hs400 */
+				status = "disabled";
+			};
+
+			mmc1: sdhci@40000 {
+				compatible = "cdns,sd4hc";
+				reg = <0x40000 0x10000>;
+				interrupts = <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>;
+				clocks = <&clk200>;
+				sdhci-caps-mask = <0xffffffff 0xffffffff>;
+				sdhci-caps = <0x00002807 0x37ec6481>;
+				max-frequency = <200000000>;
+				bus-width = <4>;
+				cap-sd-highspeed;
+				sd-uhs-sdr104;
+				no-mmc;
+				cdns,phy-input-delay-sd-default = <1>;
+				cdns,phy-input-delay-sd-highspeed = <1>;
+				cdns,phy-input-delay-sd-uhs-sdr12 = <1>;
+				cdns,phy-input-delay-sd-uhs-sdr25 = <1>;
+				cdns,phy-input-delay-sd-uhs-sdr50 = <1>;
+				cdns,phy-input-delay-sd-uhs-ddr50 = <1>;
+				cdns,phy-dll-delay-sdclk = <33>;
+				cdns,phy-dll-delay-sdclk-hsmmc = <33>;
+				status = "disabled";
+			};
+		};
+	};
+};
