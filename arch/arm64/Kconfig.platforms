@@ -337,4 +337,10 @@ config HOBOT_J5
 	help
 	  This enables support for the ARMv8 based Horizon Robotic J5 SoC.
 
+config HOBOT_J6
+	bool "Horizon Robotic Journey 6 SoC"
+	depends on ARCH_HOBOT
+	help
+	  This enables support for the ARMv8 based Horizon Robotic J6 SoC.
+
 endmenu # "Platform selection"

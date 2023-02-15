@@ -11,7 +11,7 @@
 	compatible = "hobot,j6-dvb", "hobot,j6";
 
 	chosen {
-		stdout-path = &uart1;
+		stdout-path = &uart0;
 	};
 };
 

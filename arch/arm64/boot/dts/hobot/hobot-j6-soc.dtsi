@@ -65,14 +65,14 @@
 	};
 
 
-	gic: interrupt-controller@58000000 {
+	gic: interrupt-controller@30b00000 {
 		compatible = "arm,gic-v3";
 		#interrupt-cells = <3>;
 		#address-cells = <2>;
 		#size-cells = <2>;
 		interrupt-controller;
-		reg = <0x0 0x58000000 0x0 0x10000>,
-			<0x0 0x58040000 0x0 0x100000>;
+		reg = <0x0 0x30B00000 0x0 0x10000>,
+			<0x0 0x30B60000 0x0 0x100000>;
 		interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
 	};
 
@@ -94,9 +94,9 @@
 		#size-cells = <2>;
 		ranges;
 
-		uart0: serial@43b80000 {
+		uart0: serial@39050000 {
 			compatible = "ns16550";
-			reg = <0x0 0x43b80000 0x0 0x1000>;
+			reg = <0x0 0x39050000 0x0 0x1000>;
 			interrupts = <GIC_SPI 73 IRQ_TYPE_LEVEL_HIGH>;
 			clock-frequency = <192000000>; //192MHz
 			reg-io-width = <4>;
@@ -104,9 +104,9 @@
 			status = "disabled";
 		};
 
-		uart1: serial@43b90000 {
+		uart1: serial@39060000 {
 			compatible = "ns16550";
-			reg = <0x0 0x43b90000 0x0 0x1000>;
+			reg = <0x0 0x39060000 0x0 0x1000>;
 			interrupts = <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>;
 			clock-frequency = <192000000>; //192MHz
 			reg-io-width = <4>;
@@ -114,11 +114,30 @@
 			status = "disabled";
 		};
 
-		peri: peri-apb@0x48000000 {
+		uart2: serial@39070000 {
+			compatible = "ns16550";
+			reg = <0x0 0x39070000 0x0 0x1000>;
+			interrupts = <GIC_SPI 73 IRQ_TYPE_LEVEL_HIGH>;
+			clock-frequency = <192000000>; //192MHz
+			reg-io-width = <4>;
+			reg-shift = <2>;
+			status = "disabled";
+		};
+
+		uart3: serial@39080000 {
+			compatible = "ns16550";
+			reg = <0x0 0x39080000 0x0 0x1000>;
+			interrupts = <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>;
+			clock-frequency = <192000000>; //192MHz
+			reg-io-width = <4>;
+			reg-shift = <2>;
+			status = "disabled";
+		};
+		peri: peri-apb@0x39000000 {
 			compatible = "simple-bus";
 			#address-cells = <1>;
 			#size-cells = <1>;
-			ranges = <0 0 0x48000000 0x220000>;
+			ranges = <0 0 0x39000000 0x220000>;
 
 			mmc0: sdhci@30000 {
 				compatible = "cdns,sd4hc";
@@ -126,7 +145,7 @@
 				interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>;
 				clocks = <&clk200>;
 				sdhci-caps-mask = <0xffffffff 0xffffffff>;
-				sdhci-caps = <0x00002807 0x37ec6481>;
+				sdhci-caps = <0x00000070 0x156ac800>;
 				max-frequency = <200000000>;
 				bus-width = <8>;
 				cap-mmc-highspeed;
@@ -147,7 +166,7 @@
 				interrupts = <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>;
 				clocks = <&clk200>;
 				sdhci-caps-mask = <0xffffffff 0xffffffff>;
-				sdhci-caps = <0x00002807 0x37ec6481>;
+				sdhci-caps = <0x00000070 0x156ac800>;
 				max-frequency = <200000000>;
 				bus-width = <4>;
 				cap-sd-highspeed;
