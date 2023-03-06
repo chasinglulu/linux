@@ -140,6 +140,47 @@
 		#size-cells = <2>;
 		ranges;
 
+        mmc0: sdhci@39030000 {
+            compatible = "cdns,sd4hc";
+            reg = <0x0 0x39030000 0x0 0x10000>;
+            interrupts = <GIC_SPI 0x78 IRQ_TYPE_LEVEL_HIGH>;
+            clocks = <&apb_clk>;
+            sdhci-caps-mask = <0xffffffff 0xffffffff>;
+            sdhci-caps = <0x70 0x156ac800>;
+            max-frequency = <2000000000>;
+            mmc-hs200-1_8v;
+            cap-mmc-highspeed;
+            bus-width = <8>;
+            no-sd;
+            no-sdio;
+            non-removable;
+            cdns,phy-dll-delay-sdclk-hsmmc = <0x2d>;
+            cdns,phy-dll-delay-sdclk = <0x2d>;
+            cdns,phy-dll-delay-strobe = <0x21>;
+            cdns,phy-input-delay-mmc-ddr = <3>;
+            cdns,phy-input-delay-mmc-highspeed = <3>;
+            cdns,phy-input-delay-sd-default = <8>;
+        };
+
+        mmc1: sdhci@39040000 {
+            compatible = "cdns,sd4hc";
+            reg = <0x0 0x39030000 0x0 0x10000>;
+            interrupts = <GIC_SPI 0x7a IRQ_TYPE_LEVEL_HIGH>;
+            clocks = <&apb_clk>;
+            sdhci-caps-mask = <0xffffffff 0xffffffff>;
+            sdhci-caps = <0x70 0x156ac800>;
+            max-frequency = <2000000000>;
+            bus-width = <4>;
+            no-mmc;
+            cap-sd-highspeed;
+            cdns,phy-dll-delay-sdclk-hsmmc = <0x2d>;
+            cdns,phy-dll-delay-sdclk = <0x2d>;
+            cdns,phy-dll-delay-strobe = <0x21>;
+            cdns,phy-input-delay-mmc-ddr = <3>;
+            cdns,phy-input-delay-mmc-highspeed = <3>;
+            cdns,phy-input-delay-sd-default = <8>;
+        };
+
         uart0: serial@39050000 {
             compatible = "ns16550";
             reg = <0x0 0x39050000 0x0 0x10000>;
