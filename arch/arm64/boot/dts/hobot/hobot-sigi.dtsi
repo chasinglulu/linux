@@ -30,6 +30,15 @@
                         cpu = <&cpu3>;
                     };
                 };
+
+                cluster1 {
+                    core0 {
+                        cpu = <&cpu4>;
+                    };
+                    core1 {
+                        cpu = <&cpu5>;
+                    };
+                };
             };
         };
 
@@ -53,6 +62,20 @@
         };
         cpu3: cpu@300 {
             reg = <0x300>;
+            enable-method = "psci";
+            compatible = "arm,cortex-a78ae";
+            device_type = "cpu";
+        };
+
+        cpu4: cpu@10000 {
+            reg = <0x10000>;
+            enable-method = "psci";
+            compatible = "arm,cortex-a78ae";
+            device_type = "cpu";
+        };
+
+        cpu5: cpu@10100 {
+            reg = <0x10100>;
             enable-method = "psci";
             compatible = "arm,cortex-a78ae";
             device_type = "cpu";
