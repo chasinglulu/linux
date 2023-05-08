@@ -25,6 +25,8 @@
         serial1 = &uart1;
         serial2 = &uart2;
         serial3 = &uart3;
+        mmc0 = &mmc0;
+        mmc1 = &mmc1;
     };
 
     chosen {
@@ -164,7 +166,7 @@
 
         mmc1: sdhci@39040000 {
             compatible = "cdns,sd4hc";
-            reg = <0x0 0x39030000 0x0 0x10000>;
+            reg = <0x0 0x39040000 0x0 0x10000>;
             interrupts = <GIC_SPI 0x7a IRQ_TYPE_LEVEL_HIGH>;
             clocks = <&apb_clk>;
             sdhci-caps-mask = <0xffffffff 0xffffffff>;
@@ -249,40 +251,6 @@
                 #stream-id-cells = <1>;
                 phy-names = "usb3-phy";
                 dr_mode = "host";
-            };
-        };
-
-        eth1: ethernet@33380000 {
-            #size-cells = <0>;
-            #address-cells = <1>;
-            compatible = "cdns,macb";
-            reg = <0x0 0x33380000 0x0 0x10000>;
-            interrupts = <GIC_SPI 0x28 IRQ_TYPE_LEVEL_HIGH>;
-            clock-names = "pclk", "hclk", "tx_clk", "rx_clk";
-            clocks = <&apb_clk &apb_clk &apb_clk &apb_clk>;
-            phy-handle = <&phy1>;
-            phy-mode = "rgmii-id";
-
-            phy1: fixed-link {
-                speed = <1000>;
-                full-duplex;
-            };
-        };
-
-        eth2: ethernet@33390000 {
-            #size-cells = <0>;
-            #address-cells = <1>;
-            compatible = "cdns,macb";
-            reg = <0x0 0x33390000 0x0 0x10000>;
-            interrupts = <GIC_SPI 0x29 IRQ_TYPE_LEVEL_HIGH>;
-            clock-names = "pclk", "hclk", "tx_clk", "rx_clk";
-            clocks = <&apb_clk &apb_clk &apb_clk &apb_clk>;
-            phy-handle = <&phy2>;
-            phy-mode = "rgmii-id";
-
-            phy2: fixed-link {
-                speed = <1000>;
-                full-duplex;
             };
         };
 
