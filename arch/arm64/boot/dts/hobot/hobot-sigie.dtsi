@@ -1,0 +1,211 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2023 Beijing Horizon Robotics Co., Ltd
+ */
+
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+/ {
+	interrupt-parent = <&gic>;
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+    cpus {
+        #size-cells = <0>;
+        #address-cells = <1>;
+
+        cpu-map {
+            socket0 {
+                cluster0 {
+                    core0 {
+                        cpu = <&cpu0>;
+                    };
+                    core1 {
+                        cpu = <&cpu1>;
+                    };
+                    core2 {
+                        cpu = <&cpu2>;
+                    };
+                    core3 {
+                        cpu = <&cpu3>;
+                    };
+                };
+
+                cluster1 {
+                    core0 {
+                        cpu = <&cpu4>;
+                    };
+                    core1 {
+                        cpu = <&cpu5>;
+                    };
+                };
+            };
+        };
+
+        cpu0: cpu@0 {
+            reg = <0x0>;
+            enable-method = "psci";
+            compatible = "arm,cortex-a78ae";
+            device_type = "cpu";
+        };
+        cpu1: cpu@100 {
+            reg = <0x100>;
+            enable-method = "psci";
+            compatible = "arm,cortex-a78ae";
+            device_type = "cpu";
+        };
+        cpu2: cpu@200 {
+            reg = <0x200>;
+            enable-method = "psci";
+            compatible = "arm,cortex-a78ae";
+            device_type = "cpu";
+        };
+        cpu3: cpu@300 {
+            reg = <0x300>;
+            enable-method = "psci";
+            compatible = "arm,cortex-a78ae";
+            device_type = "cpu";
+        };
+
+        cpu4: cpu@10000 {
+            reg = <0x10000>;
+            enable-method = "psci";
+            compatible = "arm,cortex-a78ae";
+            device_type = "cpu";
+        };
+
+        cpu5: cpu@10100 {
+            reg = <0x10100>;
+            enable-method = "psci";
+            compatible = "arm,cortex-a78ae";
+            device_type = "cpu";
+        };
+    };
+
+	psci {
+		compatible = "arm,psci-1.0", "arm,psci-0.2";
+		migrate = <0xc4000005>;
+		cpu_on = <0xc4000003>;
+		cpu_suspend = <0xc4000001>;
+		method = "smc";
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+				<GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+				<GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+				<GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>;
+	};
+
+    gic: gic@30800000 {
+        compatible = "arm,gic-v3";
+        #redistributor-regions = <1>;
+        #size-cells = <2>;
+        #address-cells = <2>;
+        interrupt-controller;
+        reg = <0x0 0x30800000 0x0 0x10000
+                0x0 0x30860000 0x0 0xc0000>;
+        interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
+        #interrupt-cells = <3>;
+    };
+
+    apb_clk: apb-pclk {
+        compatible = "fixed-clock";
+        clock-output-names = "clk24mhz";
+        clock-frequency = <24000000>;
+        #clock-cells = <0>;
+    };
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		uart0: serial@3A0A0000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x0 0x3A0A0000 0x0 0x1000>;
+			interrupts = <GIC_SPI 73 IRQ_TYPE_LEVEL_HIGH>;
+			clock-frequency = <192000000>; //192MHz
+			reg-io-width = <4>;
+			reg-shift = <2>;
+			status = "disabled";
+		};
+
+		uart1: serial@3A0B0000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x0 0x3A0B0000 0x0 0x1000>;
+			interrupts = <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>;
+			clock-frequency = <192000000>; //192MHz
+			reg-io-width = <4>;
+			reg-shift = <2>;
+			status = "disabled";
+		};
+
+		uart2: serial@3A0C0000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x0 0x3A0C0000 0x0 0x1000>;
+			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
+			clock-frequency = <192000000>; //192MHz
+			reg-io-width = <4>;
+			reg-shift = <2>;
+			status = "disabled";
+		};
+
+		uart3: serial@3A0D0000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x0 0x3A0D0000 0x0 0x1000>;
+			interrupts = <GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>;
+			clock-frequency = <192000000>; //192MHz
+			reg-io-width = <4>;
+			reg-shift = <2>;
+			status = "disabled";
+		};
+
+        usb@3a000000 {
+            compatible = "hobot,sigi-dwc3";
+            reg = <0x0 0x3a000000 0x0 0x10000>;
+            #size-cells = <2>;
+            #address-cells = <2>;
+            status = "disabled";
+            ranges;
+
+            dwc_usb@3a8A0000 {
+                compatible = "snps,dwc3";
+                reg = <0x0 0x3a8A0000 0x0 0x10000>;
+                interrupts = <GIC_SPI 0x84 IRQ_TYPE_LEVEL_HIGH>;
+                interrupt-names = "dwc_usb3";
+                snps,xhci-stream-quirk;
+                snps,enable_guctl1_ipd_quirk;
+                snps,enable_guctl1_resume_quirk;
+                snps,refclk_fladj;
+                snps,quirk-frame-length-adjustment = <0x20>;
+                #stream-id-cells = <1>;
+                phy-names = "usb3-phy";
+                dr_mode = "host";
+            };
+        };
+
+        mmc0: sdhci@3A0E0000 {
+            compatible = "cdns,sd4hc";
+            reg = <0x0 0x3A0E0000 0x0 0x10000>;
+            interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>;
+            clocks = <&apb_clk>;
+            sdhci-caps-mask = <0xffffffff 0xffffffff>;
+            sdhci-caps = <0x00000070 0x156ac800>;
+            max-frequency = <200000000>;
+            bus-width = <8>;
+            cap-mmc-highspeed;
+            mmc-ddr-1_8v;
+            mmc-hs200-1_8v;
+            cdns,phy-input-delay-sd-default = <8>;
+            cdns,phy-input-delay-mmc-highspeed = <3>;
+            cdns,phy-input-delay-mmc-ddr = <3>;
+            cdns,phy-dll-delay-strobe = <33>; /* for hs400 */
+            cdns,phy-dll-delay-sdclk = <45>;
+            cdns,phy-dll-delay-sdclk-hsmmc = <45>; /* golden for hs400 */
+            status = "disabled";
+        };
+	};
+};
