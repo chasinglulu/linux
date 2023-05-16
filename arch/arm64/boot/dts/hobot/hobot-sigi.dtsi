@@ -82,13 +82,38 @@
         };
     };
 
-	psci {
-		compatible = "arm,psci-1.0", "arm,psci-0.2";
-		migrate = <0xc4000005>;
-		cpu_on = <0xc4000003>;
-		cpu_suspend = <0xc4000001>;
-		method = "smc";
+    reserved_memory: reserved-memory {
+        #address-cells = <2>;
+        #size-cells = <2>;
+        ranges;
+
+        secure_region {
+            compatible = "removed-dma-pool";
+            reg = <0x10 0x00100000 0x00 0x09f00000>;
+            no-map;
+        };
+
+        tee_shm_region {
+            compatible = "removed-dma-pool";
+            reg = <0x10 0x20000000 0x00 0x01000000>;
+            no-map;
+        };
 	};
+
+    firmware {
+        optee {
+            compatible = "linaro,optee-tz";
+            method = "smc";
+        };
+
+        psci {
+            compatible = "arm,psci-1.0", "arm,psci-0.2";
+            migrate = <0xc4000005>;
+            cpu_on = <0xc4000003>;
+            cpu_suspend = <0xc4000001>;
+            method = "smc";
+        };
+    };
 
 	timer {
 		compatible = "arm,armv8-timer";
