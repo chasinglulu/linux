@@ -219,6 +219,22 @@
             };
         };
 
+        nor0: flash@18000000 {
+            #address-cells = <1>;
+            #size-cells = <1>;
+            compatible = "cfi-flash";
+            reg = <0x0 0x18000000 0x0 0x4000000>;
+            bank-width = <4>;
+            device-width = <4>;
+            status = "disabled";
+
+            partitions {
+                compatible = "fixed-partitions";
+                #address-cells = <1>;
+                #size-cells = <1>;
+            };
+        };
+
         mmc0: sdhci@30000 {
             compatible = "cdns,sd4hc";
             reg = <0x0 0x39030000 0x0 0x10000>;

@@ -63,6 +63,10 @@
     status = "okay";
 };
 
+&nor0 {
+    status = "okay";
+};
+
 &mmc0 {
     status = "okay";
 };
