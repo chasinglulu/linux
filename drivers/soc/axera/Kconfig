@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: GPL-2.0+
+#
+# AXERA SoC drivers
+#
+
+menu "Axera SoC drivers"
+    depends on ARCH_AXERA || COMPILE_TEST
+
+config AXERA_FUSA_SUPPORT
+    bool "Axera FuSa Support"
+    help
+      Say yes here to add support for FuSa function.
+
+config AXERA_DIAG_CORE
+    tristate "Axera Diagnonsis Framework Core"
+    depends on AXERA_FUSA_SUPPORT
+    help
+      Say yes here to add support for Diagnonsis Framework
+      Core (DFC).
+
+config AXERA_DIAG_TEST
+    tristate "Axera Diagnonsis Core Test"
+    depends on AXERA_FUSA_SUPPORT
+    help
+      Say yes here to add support for Diagnonsis Framework
+      Core Test.
+
+endmenu
