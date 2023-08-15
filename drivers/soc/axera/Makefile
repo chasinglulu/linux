@@ -1,0 +1,2 @@
+
+obj-$(CONFIG_AXERA_FUSA_SUPPORT)	+= fusa/
