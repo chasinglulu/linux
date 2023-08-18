@@ -20,6 +20,11 @@
         device_type = "memory";
     };
 
+    axdiag {
+        compatible = "axera,diag-core";
+        status = "okay";
+    };
+
     aliases {
         serial0 = &uart0;
         serial1 = &uart1;
