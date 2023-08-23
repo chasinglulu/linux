@@ -2,6 +2,8 @@
  * SPDX-License-Identifier: GPL-2.0+
  * 
  * Diagnosis Core test
+ * 1. two register thread, used to test register and deregister API concurrently
+ * 2. four send thread, used to test send API concurrently
  * 
  * Copyright (C) 2023 Charleye <wangkart@aliyun.com>
  * 
@@ -20,6 +22,8 @@
 
 #define TEST_MODULE_ID		10
 #define TEST_ERR_CNT		5
+#define TEST_REG0_ID		3
+#define TEST_REG1_ID		4
 
 enum err_code {
 	test_err_0,
@@ -30,7 +34,7 @@ enum err_code {
 	test_err_max,
 };
 
-struct task_struct *t1, *t2, *t3;
+struct task_struct *t1, *t2, *t3, *t4, *t5;
 
 int send_err_thread1(void *data)
 {
@@ -87,6 +91,55 @@ struct diag_register_info axera_test = {
 	},
 };
 
+struct diag_register_info axera_test_reg = {
+	DIAG_REGISTER_INFO(TEST_REG0_ID, 2, NULL, NULL) {
+		DIAG_REGISTER_INFO_HANDLE(test_err_0, NULL),
+		DIAG_REGISTER_INFO_HANDLE(test_err_1, NULL),
+		DIAG_REGISTER_INFO_HANDLE_GUARD(test_err_max),	//sentinel
+	},
+};
+
+int test_register_thread4(void *data)
+{
+	static int loop = 0;
+	do {
+		set_current_state(TASK_INTERRUPTIBLE);
+		pr_info("t4: loop = %d\n", loop++);
+		diagnosis_register(&axera_test_reg);
+		pr_info("t4: \tregistered\n");
+		schedule_timeout(msecs_to_jiffies(1000));
+		diagnosis_deregister(TEST_REG0_ID);
+		pr_info("t4: \tderegistered\n");
+	} while (!kthread_should_stop());
+
+	return 0;
+}
+
+struct diag_register_info axera_test1_reg = {
+	DIAG_REGISTER_INFO(TEST_REG1_ID, 3, NULL, NULL) {
+		DIAG_REGISTER_INFO_HANDLE(test_err_0, NULL),
+		DIAG_REGISTER_INFO_HANDLE(test_err_1, NULL),
+		DIAG_REGISTER_INFO_HANDLE(test_err_2, NULL),
+		DIAG_REGISTER_INFO_HANDLE_GUARD(test_err_max),	//sentinel
+	},
+};
+
+int test_register_thread5(void *data)
+{
+	static int loop = 0;
+	do {
+		set_current_state(TASK_INTERRUPTIBLE);
+		pr_info("t5: loop = %d\n", loop++);
+		diagnosis_register(&axera_test1_reg);
+		pr_info("t5: \tregistered\n");
+		schedule_timeout(msecs_to_jiffies(2000));
+		diagnosis_deregister(TEST_REG1_ID);
+		pr_info("t5: \tderegistered\n");
+	} while (!kthread_should_stop());
+
+	return 0;
+}
+
 static int __init diag_test_init(void)
 {
 	pr_info("Entering: %s\n", __FUNCTION__);
@@ -111,6 +164,18 @@ static int __init diag_test_init(void)
 		t3 = NULL;
 	}
 
+	t4 = kthread_run(test_register_thread4, NULL, "diag-test/t4");
+	if(IS_ERR(t4)) {
+		pr_err("Failed to thread4\n");
+		t4 = NULL;
+	}
+
+	t5 = kthread_run(test_register_thread5, NULL, "diag-test/t5");
+	if(IS_ERR(t5)) {
+		pr_err("Failed to thread5\n");
+		t5 = NULL;
+	}
+
 	return 0;
 }
 module_init(diag_test_init);
@@ -132,6 +197,16 @@ static void __exit diag_test_exit(void)
 	if (t3) {
 		kthread_stop(t3);
 		t3 = NULL;
+	}
+
+	if (t4) {
+		kthread_stop(t4);
+		t4 = NULL;
+	}
+
+	if (t5) {
+		kthread_stop(t5);
+		t5 = NULL;
 	}
 
 	diagnosis_deregister(TEST_MODULE_ID);

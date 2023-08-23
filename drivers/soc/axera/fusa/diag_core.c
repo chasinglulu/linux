@@ -76,13 +76,12 @@ static struct diag_module_mgt *diagnosis_lookup_module(uint16_t mid)
 	}
 
 	list_for_each_entry_safe(dmm, tmp, &dc_ctrl->dm_head, node) {
-		if(dmm->mid == mid)
-			break;
+		if(dmm->mid == mid) {
+			spin_unlock_irqrestore(&dc_ctrl->dm_lock, flags);
+			return dmm;
+		}
 	}
 	spin_unlock_irqrestore(&dc_ctrl->dm_lock, flags);
-
-	if (dmm)
-		return dmm;
 
 	return NULL;
 }
@@ -175,11 +174,12 @@ int diagnosis_register(const struct diag_register_info *reg_info)
 	dev_set_name(&dmm->mod_dev, "module%d", dmm->mid);
 	diag_dev_set_attrs(&dmm->mod_dev);
 	if (!dmm->name)
-		dmm->name = dev_name(&dmm->mod_dev);
+		dmm->name = kstrdup_const(dev_name(&dmm->mod_dev), GFP_KERNEL);
 
 	ret = device_register(&dmm->mod_dev);
 	if (ret) {
 		dev_err(dev, "Failed to register module device, ret= %d\n", ret);
+		put_device(&dmm->mod_dev);
 		goto fail_reg;
 	}
 
@@ -195,6 +195,7 @@ int diagnosis_register(const struct diag_register_info *reg_info)
 			dev_err(dev, "Error %d exist\n", ri_err->eid);
 			goto fail;
 		}
+		de_mgt = NULL;
 
 		de_mgt = (struct diag_error_mgt *)devm_kzalloc(dev,
 												sizeof(*de_mgt), GFP_KERNEL);
@@ -203,16 +204,18 @@ int diagnosis_register(const struct diag_register_info *reg_info)
 			ret = -ENOMEM;
 			goto fail;
 		}
+		memcpy(&de_mgt->handle, ri_err, sizeof(*ri_err));
+		INIT_LIST_HEAD(&de_mgt->err_node);
+
 		de_mgt->err_dev.parent = &dmm->mod_dev;
 		de_mgt->err_dev.release = diag_dev_release;
-
-		memcpy(de_mgt, ri_err, sizeof(*ri_err));
 		dev_set_name(&de_mgt->err_dev, "error%d", de_mgt->handle.eid);
 		diag_dev_set_attrs(&de_mgt->err_dev);
 
 		ret = device_register(&de_mgt->err_dev);
 		if (ret) {
 			dev_err(dev, "Failed to register error device, ret= %d\n", ret);
+			put_device(&de_mgt->err_dev);
 			devm_kfree(dev, de_mgt);
 			goto fail;
 		}
@@ -230,10 +233,9 @@ int diagnosis_register(const struct diag_register_info *reg_info)
 
 fail:
 	list_for_each_entry_safe(de_mgt, tmp, &dmm->err_head, err_node) {
-		if(de_mgt) {
-			device_unregister(&de_mgt->err_dev);
-			devm_kfree(dev, de_mgt);
-		}
+		list_del(&de_mgt->err_node);
+		device_unregister(&de_mgt->err_dev);
+		devm_kfree(dev, de_mgt);
 	}
 	device_unregister(&dmm->mod_dev);
 
@@ -379,6 +381,11 @@ int diagnosis_deregister(uint16_t mid)
 	dev = &dc->pdev->dev;
 
 	spin_lock(&dc->dm_lock);
+	if (list_empty(&dc->dm_head)) {
+		spin_unlock(&dc->dm_lock);
+		return 0;
+	}
+
 	list_for_each_entry_safe(dcm, tmp, &dc->dm_head, node) {
 		if (dcm->mid == mid) {
 			list_del(&dcm->node);
@@ -388,12 +395,13 @@ int diagnosis_deregister(uint16_t mid)
 	}
 	spin_unlock(&dc->dm_lock);
 
+	if (list_entry_is_head(dcm, &dc->dm_head, node))
+		return 0;
+
 	list_for_each_entry_safe(de_mgt, tmp1, &dcm->err_head, err_node) {
-		if (de_mgt) {
-			list_del(&de_mgt->err_node);
-			devm_kfree(dev, de_mgt);
-			device_unregister(&de_mgt->err_dev);
-		}
+		list_del(&de_mgt->err_node);
+		device_unregister(&de_mgt->err_dev);
+		devm_kfree(dev, de_mgt);
 	}
 
 	device_unregister(&dcm->mod_dev);
