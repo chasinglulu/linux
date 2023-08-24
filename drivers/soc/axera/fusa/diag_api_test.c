@@ -20,10 +20,15 @@
 #include <linux/kthread.h>
 #include <linux/sched.h>
 
-#define TEST_MODULE_ID		10
-#define TEST_ERR_CNT		5
-#define TEST_REG0_ID		3
-#define TEST_REG1_ID		4
+enum test_module_id {
+	TEST_SEND_ID = DIAG_MID_MAX,
+	TEST_REG0_ID,
+	TEST_REG1_ID,
+};
+
+enum test_err_cnt {
+	TEST_ERR_CNT = 5,
+};
 
 enum err_code {
 	test_err_0,
@@ -38,7 +43,7 @@ struct task_struct *t1, *t2, *t3, *t4, *t5;
 
 int send_err_thread1(void *data)
 {
-	DIAG_ERROR(err0, TEST_MODULE_ID, test_err_0);
+	DIAG_ERROR(err0, TEST_SEND_ID, test_err_0);
 	do {
 		set_current_state(TASK_INTERRUPTIBLE);
 		diagnosis_error_send(&de_err0);
@@ -50,7 +55,7 @@ int send_err_thread1(void *data)
 
 int send_err_thread2(void *data)
 {
-	DIAG_ERROR(err1, TEST_MODULE_ID, test_err_1);
+	DIAG_ERROR(err1, TEST_SEND_ID, test_err_1);
 	do {
 		set_current_state(TASK_INTERRUPTIBLE);
 		diagnosis_error_send(&de_err1);
@@ -62,7 +67,7 @@ int send_err_thread2(void *data)
 
 int send_err_thread3(void *data)
 {
-	DIAG_ERROR(err2, TEST_MODULE_ID, test_err_2);
+	DIAG_ERROR(err2, TEST_SEND_ID, test_err_2);
 	do {
 		set_current_state(TASK_INTERRUPTIBLE);
 		diagnosis_error_send(&de_err2);
@@ -81,7 +86,7 @@ int cycle_check(void *data)
 }
 
 struct diag_register_info axera_test = {
-	DIAG_REGISTER_INFO(TEST_MODULE_ID, TEST_ERR_CNT, cycle_check, NULL) {
+	DIAG_REGISTER_INFO(TEST_SEND_ID, TEST_ERR_CNT, cycle_check, NULL) {
 		DIAG_REGISTER_INFO_HANDLE(test_err_0, NULL),
 		DIAG_REGISTER_INFO_HANDLE(test_err_1, NULL),
 		DIAG_REGISTER_INFO_HANDLE(test_err_2, NULL),
@@ -209,7 +214,7 @@ static void __exit diag_test_exit(void)
 		t5 = NULL;
 	}
 
-	diagnosis_deregister(TEST_MODULE_ID);
+	diagnosis_deregister(TEST_SEND_ID);
 }
 module_exit(diag_test_exit);
 
