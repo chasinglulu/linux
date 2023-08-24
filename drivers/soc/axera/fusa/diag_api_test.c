@@ -3,7 +3,7 @@
  * 
  * Diagnosis Core test
  * 1. two register thread, used to test register and deregister API concurrently
- * 2. four send thread, used to test send API concurrently
+ * 2. three send thread, used to test send API concurrently
  * 
  * Copyright (C) 2023 Charleye <wangkart@aliyun.com>
  * 

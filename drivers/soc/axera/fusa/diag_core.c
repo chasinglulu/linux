@@ -452,15 +452,24 @@ static int diag_report_up_thread(void *data)
 static int diag_cycle_check_thread(void *data)
 {
 	struct diag_core *dc = data;
-	struct diag_module_mgt *dcm, *tmp;
+	struct diag_module_mgt *dcm;
+	int retval;
 
 	do {
 		set_current_state(TASK_UNINTERRUPTIBLE);
 
-		list_for_each_entry_safe(dcm, tmp, &dc->dm_head, node) {
-			if (dcm->cycle)
-				dcm->cycle(dcm->data);
+		spin_lock(&dc->dm_lock);
+		list_for_each_entry(dcm, &dc->dm_head, node) {
+			if (dcm->cycle) {
+				spin_unlock(&dc->dm_lock);
+				retval = dcm->cycle(dcm->data);
+				if (retval)
+					pr_err("The module %d (%s) callback failed\n", dcm->mid, dcm->name);
+
+				spin_lock(&dc->dm_lock);
+			}
 		}
+		spin_unlock(&dc->dm_lock);
 
 		schedule_timeout(msecs_to_jiffies(CYCLE_CHK_PERIOD));
 	}while(!kthread_should_stop());

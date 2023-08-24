@@ -14,10 +14,37 @@
 
 #define DIAG_ERROR_THRESHOLD    16
 
+enum diag_module_id {
+	DIGA_MID_DFC,
+
+	/* Hardware related module */
+	DIAG_MID_EFUSE,
+	DIAG_MID_CPU,
+	DIAG_MID_GPIO,
+	DIAG_MID_DMA,
+	DIAG_MID_AXI_BUS,
+	DIAG_MID_EMMC,
+	DIAG_MID_ARCH_TIMER,
+	DIAG_MID_DDR,
+	DIAG_MID_NPU,
+	DIAG_MID_ISP,
+
+	DIAG_MID_MAX,
+};
+
 enum diag_error_id {
-	DIAG_EID_RBACK_CHCEK_ERR,
-	DIAG_EID_INT_MISSING_CHECK_ERR,
-	DIAG_EID_WRITE_READ_BACK_CHECK_ERR,
+	DIAG_EID_RBACK_CHCEK,
+	DIAG_EID_INT_MISSING_CHECK,
+	DIAG_EID_WRITE_RBACK_CHECK,
+	DIAG_EID_PERIOD_CALLBACK,
+	DIAG_EID_ECC_CHECK,
+	DIAG_EID_ECC_CORRECTABLE,
+	DIAG_EID_PARITY_CHECK,
+	DIAG_EID_INT_CALLBACK,
+	DIAG_EID_LOCKSTEP_CHECK,
+
+	/* Reserve intermediate space for future use */
+	DIAG_EID_COMMON_MAX = 12,
 };
 
 enum diag_error_prio {
@@ -46,6 +73,15 @@ struct diag_error {
 		.mid = _mid,					\
 		.eid = _eid,					\
 	}
+
+#define DIAG_ERROR_INIT(_mid, _eid)		\
+		{								\
+			.mid = _mid,				\
+			.eid = _eid,				\
+		}
+
+#define DECLARE_DIAG_ERROR(name)		\
+		struct diag_error name;			\
 
 struct diag_error *diag_error_alloc(uint16_t mid, uint16_t eid);
 void diag_error_set_time(struct diag_error *de);
