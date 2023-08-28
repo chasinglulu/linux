@@ -239,6 +239,16 @@ name_show(struct device *dev, struct device_attribute *attr, char *page)
 }
 DEVICE_ATTR_RO(name);
 
+static ssize_t
+injectable_show(struct device *dev, struct device_attribute *attr, char *page)
+{
+	struct diag_error_mgt *de_mgt = container_of(dev,
+											struct diag_error_mgt, err_dev);
+
+	return scnprintf(page, PAGE_SIZE - 1, "%u\n", de_mgt->handle.attr.injectable);
+}
+DEVICE_ATTR_RO(injectable);
+
 static struct attribute *diag_error_attrs[] = {
 	&dev_attr_name.attr,
 	&dev_attr_enable.attr,
@@ -251,6 +261,7 @@ static struct attribute *diag_error_attrs[] = {
 	&dev_attr_eid.attr,
 	&dev_attr_max_snd_ms.attr,
 	&dev_attr_min_snd_ms.attr,
+	&dev_attr_injectable.attr,
 	NULL,
 };
 ATTRIBUTE_GROUPS(diag_error);

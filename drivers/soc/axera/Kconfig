@@ -4,25 +4,34 @@
 #
 
 menu "Axera SoC drivers"
-    depends on ARCH_AXERA || COMPILE_TEST
+	depends on ARCH_AXERA || COMPILE_TEST
 
 config AXERA_FUSA_SUPPORT
-    bool "Axera FuSa Support"
-    help
-      Say yes here to add support for FuSa function.
+	bool "Axera FuSa Support"
+	depends on NET
+	help
+	  Say yes here to add support for FuSa function.
 
 config AXERA_DIAG_CORE
-    tristate "Axera Diagnonsis Framework Core"
-    depends on AXERA_FUSA_SUPPORT
-    help
-      Say yes here to add support for Diagnonsis Framework
-      Core (DFC).
+	tristate "Axera Diagnonsis Framework Core"
+	depends on AXERA_FUSA_SUPPORT
+	help
+	  Say yes here to add support for Diagnonsis Framework
+	  Core (DFC).
+
+config DIAG_FAULT_INJECT
+	bool "Support for DFC fault injection"
+	depends on AXERA_DIAG_CORE
+	depends on DEBUG_KERNEL
+	select FAULT_INJECTION
+	help
+	  Say yes here to add support for Diagnonsis Fault Injection
 
 config AXERA_DIAG_TEST
-    tristate "Axera Diagnonsis Core Test"
-    depends on AXERA_FUSA_SUPPORT
-    help
-      Say yes here to add support for Diagnonsis Framework
-      Core Test.
+	tristate "Axera Diagnonsis Core Test"
+	depends on AXERA_FUSA_SUPPORT
+	help
+	  Say yes here to add support for Diagnonsis Framework
+	  Core Test.
 
 endmenu

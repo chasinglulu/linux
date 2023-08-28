@@ -46,6 +46,13 @@ int send_err_thread1(void *data)
 	DIAG_ERROR(err0, TEST_SEND_ID, test_err_0);
 	do {
 		set_current_state(TASK_INTERRUPTIBLE);
+#ifdef CONFIG_DIAG_FAULT_INJECT
+		if (should_fail_diag(&de_err0))
+		{
+			pr_err("should fail diag fault inject\n");
+			continue;
+		}
+#endif
 		diagnosis_error_send(&de_err0);
 		schedule_timeout(msecs_to_jiffies(100));
 	}while(!kthread_should_stop());
