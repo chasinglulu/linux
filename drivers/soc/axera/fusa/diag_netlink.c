@@ -22,10 +22,13 @@ static int diag_netlink_notify(struct notifier_block *nb,
 						unsigned long state,
 						void *_notify)
 {
+	struct netlink_notify *n = _notify;
+
 	if (state != NETLINK_URELEASE)
 		return NOTIFY_DONE;
 
-	atomic64_set(&diag_portid, 0);
+	if (n->protocol == INET_DIAG_PROTOCOL)
+		atomic64_set(&diag_portid, 0);
 
 	return NOTIFY_DONE;
 }

@@ -17,6 +17,7 @@
 #include <linux/diag.h>
 #include <linux/rbtree.h>
 #include <linux/string.h>
+#include <linux/fault-inject.h>
 
 #define CYCLE_CHK_PERIOD	3000	/* in ms */
 
@@ -33,6 +34,10 @@ struct diag_error_mgt {
 	atomic_t pending;	/* Number of pending errors */
 	struct list_head err_node;
 	struct device err_dev;	/* for sysfs */
+
+#ifdef CONFIG_DIAG_FAULT_INJECT
+	struct fault_attr fi;
+#endif
 };
 
 struct diag_core_error {
@@ -59,6 +64,8 @@ struct diag_module_mgt {
 
 	/* for sysfs */
 	struct device mod_dev;
+
+	struct dentry *dir;
 };
 
 struct diag_core {
@@ -76,8 +83,12 @@ struct diag_core {
 	struct task_struct *reportup_thread;
 	wait_queue_head_t wq_head;
 
+	/* netlink */
 	struct sock *sk;
 	void *rbtree;
+
+	/* fault inject */
+	struct dentry *diag_fi_dir;
 };
 
 uint32_t dc_get_module_count(struct diag_core *dc);
@@ -101,5 +112,9 @@ int diag_netlink_init(struct diag_core *dc);
 int diag_netlink_send_msg(struct sock *sk, struct diag_error *err);
 
 void diag_dev_set_attrs(struct device *dev);
+
+struct dentry *diag_fi_create_dir(struct device *dev, struct dentry *parent);
+void diag_fi_remove_dir(struct device *dev);
+
 
 #endif /* DIAG_CORE_H */

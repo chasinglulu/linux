@@ -116,9 +116,12 @@ static int diagnosis_sanity_check(const struct diag_register_info * ri)
 	const struct diag_error_handle *ri_err;
 	uint16_t count = 0;
 
+	if (ri == NULL)
+		return -EINVAL;
+
 	mod_mgt = diagnosis_lookup_module(ri->mid);
 	if (mod_mgt) {
-		pr_err("module %d exist 0x%px\n", ri->mid, mod_mgt);
+		pr_err("The module %d exist\n", ri->mid);
 		return -EEXIST;
 	}
 
@@ -130,7 +133,7 @@ static int diagnosis_sanity_check(const struct diag_register_info * ri)
 
 	/* actual error count fewer */
 	if (count < ri->error_cnt) {
-		pr_err("actual vaild error count fewer\n");
+		pr_err("Actual vaild error count fewer\n");
 		return -EINVAL;
 	}
 
@@ -146,6 +149,7 @@ int diagnosis_register(const struct diag_register_info *reg_info)
 	struct diag_error_mgt *de_mgt, *tmp;
 	const struct diag_error_handle *ri_err;
 	int count = 0;
+	struct dentry *dir = NULL;
 
 	if (!dc) {
 		pr_err("The diagnosis core is not yet ready!\n");
@@ -183,6 +187,14 @@ int diagnosis_register(const struct diag_register_info *reg_info)
 		goto fail_reg;
 	}
 
+	dmm->dir = diag_fi_create_dir(&dmm->mod_dev, dc->diag_fi_dir);
+	if (IS_ERR(dmm->dir)) {
+		dev_err(dev, "Failed to create debugfs entry\n");
+		ret = PTR_ERR(dmm->dir);
+		dmm->dir = NULL;
+		goto fail_fi;
+	}
+
 	for (ri_err = &reg_info->handle[0]; count < reg_info->error_cnt &&
 								ri_err->eid != 0xffff; ri_err++) {
 		if (!ri_err->name)
@@ -193,7 +205,7 @@ int diagnosis_register(const struct diag_register_info *reg_info)
 		de_mgt = diagnosis_lookup_error(dmm->mid, ri_err->eid);
 		if (de_mgt) {
 			dev_err(dev, "Error %d exist\n", ri_err->eid);
-			goto fail;
+			goto fail_err;
 		}
 		de_mgt = NULL;
 
@@ -202,7 +214,7 @@ int diagnosis_register(const struct diag_register_info *reg_info)
 		if (!de_mgt) {
 			dev_err(dev, "Out of memory");
 			ret = -ENOMEM;
-			goto fail;
+			goto fail_err;
 		}
 		memcpy(&de_mgt->handle, ri_err, sizeof(*ri_err));
 		INIT_LIST_HEAD(&de_mgt->err_node);
@@ -217,7 +229,16 @@ int diagnosis_register(const struct diag_register_info *reg_info)
 			dev_err(dev, "Failed to register error device, ret= %d\n", ret);
 			put_device(&de_mgt->err_dev);
 			devm_kfree(dev, de_mgt);
-			goto fail;
+			goto fail_err;
+		}
+
+		dir = diag_fi_create_dir(&de_mgt->err_dev, dmm->dir);
+		if (IS_ERR(dir)) {
+			dev_err(dev, "Failed to create error debugfs entry\n");
+			ret = PTR_ERR(dir);
+			goto fail_err;
+		} else if (dir != NULL) {
+			de_mgt->handle.attr.injectable = true;
 		}
 
 		list_add_tail(&de_mgt->err_node, &dmm->err_head);
@@ -231,12 +252,15 @@ int diagnosis_register(const struct diag_register_info *reg_info)
 
 	return 0;
 
-fail:
+fail_err:
 	list_for_each_entry_safe(de_mgt, tmp, &dmm->err_head, err_node) {
 		list_del(&de_mgt->err_node);
+		diag_fi_remove_dir(&de_mgt->err_dev);
 		device_unregister(&de_mgt->err_dev);
 		devm_kfree(dev, de_mgt);
 	}
+
+fail_fi:
 	device_unregister(&dmm->mod_dev);
 
 fail_reg:
@@ -400,10 +424,12 @@ int diagnosis_deregister(uint16_t mid)
 
 	list_for_each_entry_safe(de_mgt, tmp1, &dcm->err_head, err_node) {
 		list_del(&de_mgt->err_node);
+		diag_fi_remove_dir(&de_mgt->err_dev);
 		device_unregister(&de_mgt->err_dev);
 		devm_kfree(dev, de_mgt);
 	}
 
+	diag_fi_remove_dir(&dcm->mod_dev);
 	device_unregister(&dcm->mod_dev);
 	kfree_const(dcm->name);
 	devm_kfree(dev, dcm);
@@ -527,7 +553,7 @@ static int diag_core_probe(struct platform_device *pdev)
 	ret = diag_netlink_init(dc);
 	if (ret) {
 		dev_err(dev, "Failed to initialize diag netlink socket.\n");
-		goto failed;
+		goto fail_nl;
 	}
 
 	dc->reportup_thread = kthread_run(diag_report_up_thread, dc,
@@ -536,8 +562,17 @@ static int diag_core_probe(struct platform_device *pdev)
 		dev_err(dev, "Fail to create event report-up thread\n");
 		dc->reportup_thread = NULL;
 		ret = -ENOMEM;
-		goto failed_diag;
+		goto fail_report;
 	}
+
+#ifdef CONFIG_DIAG_FAULT_INJECT
+	dc->diag_fi_dir = debugfs_create_dir("diag_fault_inject", NULL);
+	if (IS_ERR(dc->diag_fi_dir)) {
+		dev_err(dev, "Failed to create fault inject debugfs entry\n");
+		ret = PTR_ERR(dc->diag_fi_dir);
+		goto fail_fi;
+	}
+#endif
 
 	platform_set_drvdata(pdev, dc);
 	dc_ctrl = dc;
@@ -546,10 +581,15 @@ static int diag_core_probe(struct platform_device *pdev)
 
 	return 0;
 
-failed_diag:
+#ifdef CONFIG_DIAG_FAULT_INJECT
+fail_fi:
+	kthread_stop(dc->reportup_thread);
+	dc->reportup_thread = NULL;
+#endif
+fail_report:
 	netlink_kernel_release(dc->sk);
 	dc->sk = NULL;
-failed:
+fail_nl:
 	kthread_stop(dc->cycle_chk_thread);
 	dc->cycle_chk_thread = NULL;
 	return ret;
@@ -567,6 +607,8 @@ static int diag_core_remove(struct platform_device *pdev)
 
 	if (dc->reportup_thread && !IS_ERR(dc->reportup_thread))
 		kthread_stop(dc->reportup_thread);
+
+	debugfs_remove(dc->diag_fi_dir);
 
 	dc_ctrl = NULL;
 

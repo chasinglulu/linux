@@ -91,6 +91,7 @@ struct diag_error_attr {
 	uint16_t threshold;			/* error criticality level boost threshold */
 	bool enable;				/* error enable */
 	bool repeat;				/* error repeat during the sending error cycle*/
+	bool injectable;			/* error injectable */
 }__attribute__((packed));
 
 #define DIAG_ERROR_ATTR(ee, rt, po, td)		\
@@ -169,9 +170,28 @@ struct diag_register_info {
 				DIAG_ERROR_HANDLE_DEFAULT(0xffff, NULL),		\
 			}
 
-
+#if CONFIG_AXERA_FUSA_SUPPORT
 int diagnosis_register(const struct diag_register_info *reg_info);
 int diagnosis_error_send(struct diag_error *error);
 int diagnosis_deregister(uint16_t mid);
+bool should_fail_diag(struct diag_error *err);
+#else
+int diagnosis_register(const struct diag_register_info *reg_info)
+{
+	return 0;
+}
+int diagnosis_error_send(struct diag_error *error)
+{
+	return 0;
+}
+int diagnosis_deregister(uint16_t mid)
+{
+	return 0;
+}
+bool should_fail_diag(struct diag_error *err)
+{
+	return false;
+}
+#endif
 
 #endif
