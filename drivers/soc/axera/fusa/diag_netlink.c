@@ -58,10 +58,9 @@ static void diag_netlink_recv_msg(struct sk_buff *skb)
 	{
 		nlh = nlmsg_hdr(skb);
 		umsg = NLMSG_DATA(nlh);
+
 		if (umsg)
-		{
 			pr_info("err ID: %d module ID: %d\n", umsg->data.err.eid, umsg->data.err.mid);
-		}
 	}
 }
 
@@ -95,8 +94,7 @@ int diag_netlink_send_msg(struct sock *sk, struct diag_error *err)
 		return -ENOMEM;
 
 	nlh = nlmsg_put(nl_skb, 0, 0, NETLINK_SOC_DIAG, sizeof(msg), 0);
-	if (nlh == NULL)
-	{
+	if (nlh == NULL) {
 		ret = -EMSGSIZE;
 		goto out;
 	}
