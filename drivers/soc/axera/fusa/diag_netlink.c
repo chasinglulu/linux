@@ -27,7 +27,7 @@ static int diag_netlink_notify(struct notifier_block *nb,
 	if (state != NETLINK_URELEASE)
 		return NOTIFY_DONE;
 
-	if (n->protocol == INET_DIAG_PROTOCOL)
+	if (n->protocol == NETLINK_SOC_DIAG)
 		atomic64_set(&diag_portid, 0);
 
 	return NOTIFY_DONE;
