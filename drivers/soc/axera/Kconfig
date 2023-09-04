@@ -19,6 +19,13 @@ config AXERA_DIAG_CORE
 	  Say yes here to add support for Diagnonsis Framework
 	  Core (DFC).
 
+config DIAG_CORE_SELFTEST
+	tristate "Diagnonsis Framework Core Selftest"
+	depends on AXERA_DIAG_CORE
+	help
+	  Say yes here to add support for Diagnonsis Framework
+	  Core Selftest.
+
 config DIAG_FAULT_INJECT
 	bool "Support for DFC fault injection"
 	depends on AXERA_DIAG_CORE

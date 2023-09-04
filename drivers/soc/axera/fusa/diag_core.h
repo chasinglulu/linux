@@ -116,5 +116,11 @@ void diag_dev_set_attrs(struct device *dev);
 struct dentry *diag_fi_create_dir(struct device *dev, struct dentry *parent);
 void diag_fi_remove_dir(struct device *dev);
 
+#ifdef CONFIG_DIAG_CORE_SELFTEST
+int diag_selftest_init(void);
+int diag_selftest_run(void);
+int diag_selftest_check(void);
+int diag_selftest_deinit(void);
+#endif
 
 #endif /* DIAG_CORE_H */

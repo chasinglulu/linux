@@ -29,14 +29,76 @@
 
 static struct diag_core *dc_ctrl = NULL;
 
+#ifdef CONFIG_DIAG_CORE_SELFTEST
+struct selftest_func {
+	int index;
+	int (*func)(void);
+};
+
+#define SELFTEST_FUNC(name, _index)		\
+		{								\
+			.index = _index,			\
+			.func = diag_selftest_##name,	\
+		}
+
+static const char *selftest_command[] = {
+	"init",
+	"run",
+	"check",
+	"deinit",
+	NULL,
+};
+
+static struct selftest_func st_funcs[] = {
+	SELFTEST_FUNC(init, 0),
+	SELFTEST_FUNC(run, 1),
+	SELFTEST_FUNC(check, 2),
+	SELFTEST_FUNC(deinit, 3),
+	{-1, NULL},	//sentinel
+};
+
+static int selftest_find_func(const char *buf)
+{
+	int i;
+
+	for (i = 0; selftest_command[i]; i++)
+		if (!strcmp(selftest_command[i], buf))
+			return i;
+
+	return INT_MAX;
+}
+
 static ssize_t
 selftest_store(struct device *dev, struct device_attribute *attr,
 				const char *buf, size_t count)
 {
+	int index;
+	struct selftest_func *f;
+	char name[16];
 
-	pr_info("Not yet implemented\n");
+	sscanf(buf, "%7s", name);
+
+	index = selftest_find_func(name);
+	if (index == INT_MAX) {
+		pr_err("Invaild selftest command\n");
+		return count;
+	}
+
+	f = &st_funcs[index];
+	if (f->index == index && f->func)
+		f->func();
+
 	return count;
 }
+#else
+static ssize_t
+selftest_store(struct device *dev, struct device_attribute *attr,
+				const char *buf, size_t count)
+{
+	pr_err("The diag core selftest not enabled\n");
+	return count;
+}
+#endif
 DEVICE_ATTR_WO(selftest);
 
 static ssize_t
