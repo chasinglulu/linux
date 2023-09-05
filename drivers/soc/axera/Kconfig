@@ -20,7 +20,7 @@ config AXERA_DIAG_CORE
 	  Core (DFC).
 
 config DIAG_CORE_SELFTEST
-	tristate "Diagnonsis Framework Core Selftest"
+	bool "Diagnonsis Framework Core Selftest"
 	depends on AXERA_DIAG_CORE
 	help
 	  Say yes here to add support for Diagnonsis Framework
