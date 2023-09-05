@@ -33,36 +33,30 @@ static struct diag_core *dc_ctrl = NULL;
 struct selftest_func {
 	int index;
 	int (*func)(void);
+	const char *command;
 };
 
 #define SELFTEST_FUNC(name, _index)		\
 		{								\
 			.index = _index,			\
 			.func = diag_selftest_##name,	\
+			.command = #name,			\
 		}
-
-static const char *selftest_command[] = {
-	"init",
-	"run",
-	"check",
-	"deinit",
-	NULL,
-};
 
 static struct selftest_func st_funcs[] = {
 	SELFTEST_FUNC(init, 0),
 	SELFTEST_FUNC(run, 1),
 	SELFTEST_FUNC(check, 2),
 	SELFTEST_FUNC(deinit, 3),
-	{-1, NULL},	//sentinel
+	{ -1, NULL, NULL },	//sentinel
 };
 
 static int selftest_find_func(const char *buf)
 {
 	int i;
 
-	for (i = 0; selftest_command[i]; i++)
-		if (!strcmp(selftest_command[i], buf))
+	for (i = 0; st_funcs[i].command; i++)
+		if (!strcmp(st_funcs[i].command, buf))
 			return i;
 
 	return INT_MAX;
