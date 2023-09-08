@@ -31,6 +31,8 @@ config DIAG_FAULT_INJECT
 	depends on AXERA_DIAG_CORE
 	depends on DEBUG_KERNEL
 	select FAULT_INJECTION
+	select DEBUG_FS
+	select FAULT_INJECTION_DEBUG_FS
 	help
 	  Say yes here to add support for Diagnonsis Fault Injection
 
