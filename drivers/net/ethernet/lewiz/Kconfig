@@ -1,6 +1,20 @@
 #
 # LeWiz device configuration
 #
+
+config NET_VENDOR_LEWIZ
+	bool "LeWiz devices"
+	default y
+	help
+	  If you have a network (Ethernet) card belonging to this class, say Y.
+
+	  Note that the answer to this question doesn't directly affect the
+	  kernel: saying N will just cause the configurator to skip all
+	  the questions about LeWiz cards. If you say Y, you will be asked for
+	  your specific card in the following questions.
+
+if NET_VENDOR_LEWIZ
+
 config LEWIZ_LMAC2
 	tristate "LeWiz LMAC2 support"
 	depends on ARM || ARM64
@@ -9,3 +23,4 @@ config LEWIZ_LMAC2
 	help
 	  Support for LeWiz LMAC2 Ethernet MAC.
 
+endif

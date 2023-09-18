@@ -92,7 +92,7 @@ static inline void lmac2_ack_interrupt(struct net_local *lp,
 	BUG_ON(r_sr & DMA_SR_IOC_IRQ);
 }
 
-static void lmac2_tx_timeout(struct net_device *dev)
+static void lmac2_tx_timeout(struct net_device *dev, unsigned int txqueue)
 {
 	printk("%s: timeout\n", __func__);
 	// TODO: Dump registers, reset everything and start again..
@@ -107,8 +107,8 @@ static void lmac_prepare_rx(struct net_device *dev)
 	unsigned int len;
 
 	/* Allocate an SKB of MAX size.  */
-        len = MAX_FRAME_SIZE;
-        lp->rx.skb = netdev_alloc_skb(dev, len);
+	len = MAX_FRAME_SIZE;
+	lp->rx.skb = netdev_alloc_skb(dev, len);
 	skb_reserve(lp->rx.skb, NET_IP_ALIGN);
 
 	/* Map to a DMA (physical) address.  */
@@ -176,7 +176,7 @@ static irqreturn_t lmac2_tx_interrupt(int irq, void *dev_id)
 	irqreturn_t ret = IRQ_HANDLED;
 	u32 tx_sr;
 
-        spin_lock(&lp->tx.lock);
+	spin_lock(&lp->tx.lock);
 
 	tx_sr = readl(lp->base_addr + DMA_M2S_OFFSET + DMA_R_SR);
 	if (tx_sr & DMA_SR_IOC_IRQ) {
@@ -204,7 +204,7 @@ static irqreturn_t lmac2_tx_interrupt(int irq, void *dev_id)
 		ret = IRQ_NONE;
 	}
 
-        spin_unlock(&lp->tx.lock);
+	spin_unlock(&lp->tx.lock);
 	return ret;
 }
 
@@ -216,7 +216,7 @@ static int lmac2_start_xmit(struct sk_buff *skb, struct net_device *dev)
 
 	len = skb->len;
 
-        spin_lock_irqsave(&lp->tx.lock, flags);
+	spin_lock_irqsave(&lp->tx.lock, flags);
 	lp->tx.skb = skb;
 	lp->tx.phys = dma_map_single(dev->dev.parent,
 			skb->data, MAX_FRAME_SIZE,
@@ -294,9 +294,9 @@ static int lmac2_of_probe(struct platform_device *ofdev)
 	struct net_device *ndev = NULL;
 	struct net_local *lp = NULL;
 	struct device *dev = &ofdev->dev;
-	const void *mac_address;
-
+	uint8_t mac_address[ETH_ALEN];
 	int rc = 0;
+	int irq;
 
 	/* Create an ethernet device instance */
 	ndev = alloc_etherdev(sizeof(struct net_local));
@@ -309,26 +309,26 @@ static int lmac2_of_probe(struct platform_device *ofdev)
 	lp = netdev_priv(ndev);
 	lp->ndev = ndev;
 
-        spin_lock_init(&lp->tx.lock);
+	spin_lock_init(&lp->tx.lock);
 
 	/* Get IRQ for the device */
-	res = platform_get_resource(ofdev, IORESOURCE_IRQ, 0);
-	if (!res) {
+	irq = platform_get_irq(ofdev, 0);
+	if (irq < 0) {
 		dev_err(dev, "no IRQ found\n");
-		rc = -ENXIO;
+		rc = irq;
 		goto error;
 	}
 
-	ndev->irq = res->start;
+	ndev->irq = irq;
 
-	res = platform_get_resource(ofdev, IORESOURCE_IRQ, 1);
-	if (!res) {
+	irq = platform_get_irq(ofdev, 1);
+	if (irq < 0) {
 		dev_err(dev, "no IRQ found\n");
-		rc = -ENXIO;
+		rc = irq;
 		goto error;
 	}
 
-	lp->rx.irq = res->start;
+	lp->rx.irq = irq;
 
 	res = platform_get_resource(ofdev, IORESOURCE_MEM, 0);
 	lp->base_addr = devm_ioremap_resource(&ofdev->dev, res);
@@ -340,11 +340,11 @@ static int lmac2_of_probe(struct platform_device *ofdev)
 	ndev->mem_start = res->start;
 	ndev->mem_end = res->end;
 
-	mac_address = of_get_mac_address(ofdev->dev.of_node);
+	rc = of_get_mac_address(ofdev->dev.of_node, mac_address);
 
-	if (mac_address) {
+	if (!rc && is_valid_ether_addr(mac_address)) {
 		/* Set the MAC address. */
-		memcpy(ndev->dev_addr, mac_address, ETH_ALEN);
+		eth_hw_addr_set(ndev, mac_address);
 	} else {
 		dev_warn(dev, "No MAC address found, using random\n");
 		eth_hw_addr_random(ndev);
