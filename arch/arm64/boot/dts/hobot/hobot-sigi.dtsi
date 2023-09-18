@@ -10,110 +10,110 @@
 	#address-cells = <2>;
 	#size-cells = <2>;
 
-    cpus {
-        #size-cells = <0>;
-        #address-cells = <1>;
+	cpus {
+		#size-cells = <0>;
+		#address-cells = <1>;
 
-        cpu-map {
-            socket0 {
-                cluster0 {
-                    core0 {
-                        cpu = <&cpu0>;
-                    };
-                    core1 {
-                        cpu = <&cpu1>;
-                    };
-                    core2 {
-                        cpu = <&cpu2>;
-                    };
-                    core3 {
-                        cpu = <&cpu3>;
-                    };
-                };
+		cpu-map {
+			socket0 {
+				cluster0 {
+					core0 {
+						cpu = <&cpu0>;
+					};
+					core1 {
+						cpu = <&cpu1>;
+					};
+					core2 {
+						cpu = <&cpu2>;
+					};
+					core3 {
+						cpu = <&cpu3>;
+					};
+				};
 
-                cluster1 {
-                    core0 {
-                        cpu = <&cpu4>;
-                    };
-                    core1 {
-                        cpu = <&cpu5>;
-                    };
-                };
-            };
-        };
+				cluster1 {
+					core0 {
+						cpu = <&cpu4>;
+					};
+					core1 {
+						cpu = <&cpu5>;
+					};
+				};
+			};
+		};
 
-        cpu0: cpu@0 {
-            reg = <0x0>;
-            enable-method = "psci";
-            compatible = "arm,cortex-a78ae";
-            device_type = "cpu";
-        };
-        cpu1: cpu@100 {
-            reg = <0x100>;
-            enable-method = "psci";
-            compatible = "arm,cortex-a78ae";
-            device_type = "cpu";
-        };
-        cpu2: cpu@200 {
-            reg = <0x200>;
-            enable-method = "psci";
-            compatible = "arm,cortex-a78ae";
-            device_type = "cpu";
-        };
-        cpu3: cpu@300 {
-            reg = <0x300>;
-            enable-method = "psci";
-            compatible = "arm,cortex-a78ae";
-            device_type = "cpu";
-        };
+		cpu0: cpu@0 {
+			reg = <0x0>;
+			enable-method = "psci";
+			compatible = "arm,cortex-a78ae";
+			device_type = "cpu";
+		};
+		cpu1: cpu@100 {
+			reg = <0x100>;
+			enable-method = "psci";
+			compatible = "arm,cortex-a78ae";
+			device_type = "cpu";
+		};
+		cpu2: cpu@200 {
+			reg = <0x200>;
+			enable-method = "psci";
+			compatible = "arm,cortex-a78ae";
+			device_type = "cpu";
+		};
+		cpu3: cpu@300 {
+			reg = <0x300>;
+			enable-method = "psci";
+			compatible = "arm,cortex-a78ae";
+			device_type = "cpu";
+		};
 
-        cpu4: cpu@10000 {
-            reg = <0x10000>;
-            enable-method = "psci";
-            compatible = "arm,cortex-a78ae";
-            device_type = "cpu";
-        };
+		cpu4: cpu@10000 {
+			reg = <0x10000>;
+			enable-method = "psci";
+			compatible = "arm,cortex-a78ae";
+			device_type = "cpu";
+		};
 
-        cpu5: cpu@10100 {
-            reg = <0x10100>;
-            enable-method = "psci";
-            compatible = "arm,cortex-a78ae";
-            device_type = "cpu";
-        };
-    };
-
-    reserved_memory: reserved-memory {
-        #address-cells = <2>;
-        #size-cells = <2>;
-        ranges;
-
-        secure_region {
-            compatible = "removed-dma-pool";
-            reg = <0x10 0x00100000 0x00 0x09f00000>;
-            no-map;
-        };
-
-        tee_shm_region {
-            compatible = "removed-dma-pool";
-            reg = <0x10 0x20000000 0x00 0x01000000>;
-            no-map;
-        };
+		cpu5: cpu@10100 {
+			reg = <0x10100>;
+			enable-method = "psci";
+			compatible = "arm,cortex-a78ae";
+			device_type = "cpu";
+		};
 	};
 
-    firmware {
-        optee {
-            compatible = "linaro,optee-tz";
-            method = "smc";
-        };
+	reserved_memory: reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
 
-        psci {
-            compatible = "arm,psci-1.0", "arm,psci-0.2";
-            migrate = <0xc4000005>;
-            cpu_on = <0xc4000003>;
-            cpu_suspend = <0xc4000001>;
-            method = "smc";
-        };
-    };
+		secure_region {
+			compatible = "removed-dma-pool";
+			reg = <0x10 0x00100000 0x00 0x09f00000>;
+			no-map;
+		};
+
+		tee_shm_region {
+			compatible = "removed-dma-pool";
+			reg = <0x10 0x20000000 0x00 0x01000000>;
+			no-map;
+		};
+	};
+
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
+
+		psci {
+			compatible = "arm,psci-1.0", "arm,psci-0.2";
+			migrate = <0xc4000005>;
+			cpu_on = <0xc4000003>;
+			cpu_suspend = <0xc4000001>;
+			method = "smc";
+		};
+	};
 
 	timer {
 		compatible = "arm,armv8-timer";
@@ -123,31 +123,31 @@
 				<GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>;
 	};
 
-    gic: gic@30b00000 {
-        compatible = "arm,gic-v3";
-        #redistributor-regions = <1>;
-        #size-cells = <2>;
-        #address-cells = <2>;
-        interrupt-controller;
-        reg = <0x0 0x30b00000 0x0 0x10000
-                0x0 0x30b60000 0x0 0x1c0000>;
-        interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
-        #interrupt-cells = <3>;
-        ranges;
+	gic: gic@30b00000 {
+		compatible = "arm,gic-v3";
+		#redistributor-regions = <1>;
+		#size-cells = <2>;
+		#address-cells = <2>;
+		interrupt-controller;
+		reg = <0x0 0x30b00000 0x0 0x10000
+				0x0 0x30b60000 0x0 0x1c0000>;
+		interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
+		#interrupt-cells = <3>;
+		ranges;
 
-        its: its@30290000 {
-            compatible = "arm,gic-v3-its";
-            reg = <0x0 0x30290000 0x0 0x10000>;
-            msi-controller;
-        };
-    };
+		its: its@30290000 {
+			compatible = "arm,gic-v3-its";
+			reg = <0x0 0x30290000 0x0 0x10000>;
+			msi-controller;
+		};
+	};
 
-    apb_clk: apb-pclk {
-        compatible = "fixed-clock";
-        clock-output-names = "clk24mhz";
-        clock-frequency = <24000000>;
-        #clock-cells = <0>;
-    };
+	apb_clk: apb-pclk {
+		compatible = "fixed-clock";
+		clock-output-names = "clk24mhz";
+		clock-frequency = <24000000>;
+		#clock-cells = <0>;
+	};
 
 	soc {
 		compatible = "simple-bus";
@@ -195,88 +195,97 @@
 			status = "disabled";
 		};
 
-        usb@3a000000 {
-            compatible = "hobot,sigi-dwc3";
-            reg = <0x0 0x3a000000 0x0 0x10000>;
-            #size-cells = <2>;
-            #address-cells = <2>;
-            status = "disabled";
-            ranges;
+		usb@3a000000 {
+			compatible = "hobot,sigi-dwc3";
+			reg = <0x0 0x3a000000 0x0 0x10000>;
+			#size-cells = <2>;
+			#address-cells = <2>;
+			status = "disabled";
+			ranges;
 
-            dwc_usb@3a820000 {
-                compatible = "snps,dwc3";
-                reg = <0x0 0x3a820000 0x0 0x10000>;
-                interrupts = <GIC_SPI 0x84 IRQ_TYPE_LEVEL_HIGH>;
-                interrupt-names = "dwc_usb3";
-                snps,xhci-stream-quirk;
-                snps,enable_guctl1_ipd_quirk;
-                snps,enable_guctl1_resume_quirk;
-                snps,refclk_fladj;
-                snps,quirk-frame-length-adjustment = <0x20>;
-                #stream-id-cells = <1>;
-                phy-names = "usb3-phy";
-                dr_mode = "host";
-            };
-        };
+			dwc_usb@3a820000 {
+				compatible = "snps,dwc3";
+				reg = <0x0 0x3a820000 0x0 0x10000>;
+				interrupts = <GIC_SPI 0x84 IRQ_TYPE_LEVEL_HIGH>;
+				interrupt-names = "dwc_usb3";
+				snps,xhci-stream-quirk;
+				snps,enable_guctl1_ipd_quirk;
+				snps,enable_guctl1_resume_quirk;
+				snps,refclk_fladj;
+				snps,quirk-frame-length-adjustment = <0x20>;
+				#stream-id-cells = <1>;
+				phy-names = "usb3-phy";
+				dr_mode = "host";
+			};
+		};
 
-        nor0: flash@18000000 {
-            #address-cells = <1>;
-            #size-cells = <1>;
-            compatible = "cfi-flash";
-            reg = <0x0 0x18000000 0x0 0x4000000>;
-            bank-width = <4>;
-            device-width = <4>;
-            status = "disabled";
+		nor0: flash@18000000 {
+			#address-cells = <1>;
+			#size-cells = <1>;
+			compatible = "cfi-flash";
+			reg = <0x0 0x18000000 0x0 0x4000000>;
+			bank-width = <4>;
+			device-width = <4>;
+			status = "disabled";
 
-            partitions {
-                compatible = "fixed-partitions";
-                #address-cells = <1>;
-                #size-cells = <1>;
-            };
-        };
+			partitions {
+				compatible = "fixed-partitions";
+				#address-cells = <1>;
+				#size-cells = <1>;
+			};
+		};
 
-        mmc0: sdhci@30000 {
-            compatible = "cdns,sd4hc";
-            reg = <0x0 0x39030000 0x0 0x10000>;
-            interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>;
-            clocks = <&apb_clk>;
-            sdhci-caps-mask = <0xffffffff 0xffffffff>;
-            sdhci-caps = <0x00000070 0x156ac800>;
-            max-frequency = <200000000>;
-            bus-width = <8>;
-            cap-mmc-highspeed;
-            mmc-ddr-1_8v;
-            mmc-hs200-1_8v;
-            cdns,phy-input-delay-sd-default = <8>;
-            cdns,phy-input-delay-mmc-highspeed = <3>;
-            cdns,phy-input-delay-mmc-ddr = <3>;
-            cdns,phy-dll-delay-strobe = <33>; /* for hs400 */
-            cdns,phy-dll-delay-sdclk = <45>;
-            cdns,phy-dll-delay-sdclk-hsmmc = <45>; /* golden for hs400 */
-            status = "disabled";
-        };
+		mmc0: sdhci@30000 {
+			compatible = "cdns,sd4hc";
+			reg = <0x0 0x39030000 0x0 0x10000>;
+			interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&apb_clk>;
+			sdhci-caps-mask = <0xffffffff 0xffffffff>;
+			sdhci-caps = <0x00000070 0x156ac800>;
+			max-frequency = <200000000>;
+			bus-width = <8>;
+			cap-mmc-highspeed;
+			mmc-ddr-1_8v;
+			mmc-hs200-1_8v;
+			cdns,phy-input-delay-sd-default = <8>;
+			cdns,phy-input-delay-mmc-highspeed = <3>;
+			cdns,phy-input-delay-mmc-ddr = <3>;
+			cdns,phy-dll-delay-strobe = <33>; /* for hs400 */
+			cdns,phy-dll-delay-sdclk = <45>;
+			cdns,phy-dll-delay-sdclk-hsmmc = <45>; /* golden for hs400 */
+			status = "disabled";
+		};
 
-        mmc1: sdhci@40000 {
-            compatible = "cdns,sd4hc";
-            reg = <0x0 0x39040000 0x0 0x10000>;
-            interrupts = <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>;
-            clocks = <&apb_clk>;
-            sdhci-caps-mask = <0xffffffff 0xffffffff>;
-            sdhci-caps = <0x00000070 0x156ac800>;
-            max-frequency = <200000000>;
-            bus-width = <4>;
-            cap-sd-highspeed;
-            sd-uhs-sdr104;
-            no-mmc;
-            cdns,phy-input-delay-sd-default = <1>;
-            cdns,phy-input-delay-sd-highspeed = <1>;
-            cdns,phy-input-delay-sd-uhs-sdr12 = <1>;
-            cdns,phy-input-delay-sd-uhs-sdr25 = <1>;
-            cdns,phy-input-delay-sd-uhs-sdr50 = <1>;
-            cdns,phy-input-delay-sd-uhs-ddr50 = <1>;
-            cdns,phy-dll-delay-sdclk = <33>;
-            cdns,phy-dll-delay-sdclk-hsmmc = <33>;
-            status = "disabled";
-        };
+		mmc1: sdhci@40000 {
+			compatible = "cdns,sd4hc";
+			reg = <0x0 0x39040000 0x0 0x10000>;
+			interrupts = <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&apb_clk>;
+			sdhci-caps-mask = <0xffffffff 0xffffffff>;
+			sdhci-caps = <0x00000070 0x156ac800>;
+			max-frequency = <200000000>;
+			bus-width = <4>;
+			cap-sd-highspeed;
+			sd-uhs-sdr104;
+			no-mmc;
+			cdns,phy-input-delay-sd-default = <1>;
+			cdns,phy-input-delay-sd-highspeed = <1>;
+			cdns,phy-input-delay-sd-uhs-sdr12 = <1>;
+			cdns,phy-input-delay-sd-uhs-sdr25 = <1>;
+			cdns,phy-input-delay-sd-uhs-sdr50 = <1>;
+			cdns,phy-input-delay-sd-uhs-ddr50 = <1>;
+			cdns,phy-dll-delay-sdclk = <33>;
+			cdns,phy-dll-delay-sdclk-hsmmc = <33>;
+			status = "disabled";
+		};
+
+		eth0: lmac2@a0030000 {
+			compatible = "lewiz,lmac2";
+			reg = <0x0 0xa0030000 0x0 0x10000>;
+			mac-address = [00 40 8c 00 00 01];
+			interrupt-names = "tx", "rx";
+			interrupts = <0x0 91 0x4 0x0 93 0x4>;
+			status = "disabled";
+		};
 	};
 };
