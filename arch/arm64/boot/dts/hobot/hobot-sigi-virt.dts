@@ -9,73 +9,74 @@
 
 #include "hobot-sigi.dtsi"
 / {
-    compatible = "hobot-sigi-virt";
-    model = "Horizon Robotics Sigi Virt Development Platform";
-    #address-cells = <2>;
-    #size-cells = <2>;
-    interrupt-parent = <&gic>;
+	compatible = "hobot-sigi-virt";
+	model = "Horizon Robotics Sigi Virt Development Platform";
+	#address-cells = <2>;
+	#size-cells = <2>;
+	interrupt-parent = <&gic>;
 
-    memory@3000000000 {
-        reg = <0x30 0x00000000 0x1 0x00000000>;
-        device_type = "memory";
-    };
+	memory@3000000000 {
+		reg = <0x30 0x00000000 0x1 0x00000000>;
+		device_type = "memory";
+	};
 
-    axdiag {
-        compatible = "axera,diag-core";
-        status = "okay";
-    };
+	axdiag {
+		compatible = "axera,diag-core";
+		status = "okay";
+	};
 
-    aliases {
-        serial0 = &uart0;
-        serial1 = &uart1;
-        serial2 = &uart2;
-        serial3 = &uart3;
-        mmc0 = &mmc0;
-        mmc1 = &mmc1;
-    };
+	aliases {
+		serial0 = &uart0;
+		serial1 = &uart1;
+		serial2 = &uart2;
+		serial3 = &uart3;
+		mmc0 = &mmc0;
+		mmc1 = &mmc1;
+		eth0 = &eth0;
+	};
 
-    chosen {
-        stdout-path = &uart0;
-        #address-cells = <2>;
+	chosen {
+		stdout-path = &uart0;
+		#address-cells = <2>;
 		#size-cells = <2>;
-        bootargs = "earlycon=uart8250,mmio32,0x39050000,115200n8 console=ttyS0,115200 rdinit=/sbin/init root=/dev/mmcblk0p7 rw rootwait debug";
-        xen,xen-bootargs = "console=dtuart, dtuart=serial0 dom0_mem=1G";
-        xen,dom0-bootargs = "rdinit=/sbin/init console=hvc0,115200n8 earlycon=xenboot debug";
+		bootargs = "earlycon=uart8250,mmio32,0x39050000,115200n8 console=ttyS0,115200 rdinit=/sbin/init root=/dev/mmcblk0p7 rw rootwait debug";
+		xen,xen-bootargs = "console=dtuart, dtuart=serial0 dom0_mem=1G";
+		xen,dom0-bootargs = "rdinit=/sbin/init console=hvc0,115200n8 earlycon=xenboot debug";
 		module@0 {
 			compatible = "xen,linux-zimage", "xen,multiboot-module";
 			reg = <0x30 0x85000000 0x0 0x03000000>;
 		};
-    };
+	};
 };
 
 &uart0 {
-    compatible = "ns16550";
-    status = "okay";
+	compatible = "ns16550";
+	status = "okay";
 };
 
 &uart1 {
-    compatible = "ns16550";
-    status = "okay";
+	compatible = "ns16550";
+	status = "okay";
 };
 
 &uart2 {
-    compatible = "ns16550";
-    status = "okay";
+	compatible = "ns16550";
+	status = "okay";
 };
 
 &uart3 {
-    compatible = "ns16550";
-    status = "okay";
+	compatible = "ns16550";
+	status = "okay";
 };
 
 &nor0 {
-    status = "okay";
+	status = "okay";
 };
 
 &mmc0 {
-    status = "okay";
+	status = "okay";
 };
 
 &mmc1 {
-    status = "okay";
+	status = "okay";
 };
