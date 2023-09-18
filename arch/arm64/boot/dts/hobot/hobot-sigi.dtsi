@@ -235,7 +235,7 @@
 			};
 		};
 
-		mmc0: sdhci@30000 {
+		mmc0: sdhci@39030000 {
 			compatible = "cdns,sd4hc";
 			reg = <0x0 0x39030000 0x0 0x10000>;
 			interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>;
@@ -256,7 +256,7 @@
 			status = "disabled";
 		};
 
-		mmc1: sdhci@40000 {
+		mmc1: sdhci@39040000 {
 			compatible = "cdns,sd4hc";
 			reg = <0x0 0x39040000 0x0 0x10000>;
 			interrupts = <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>;
@@ -279,9 +279,9 @@
 			status = "disabled";
 		};
 
-		eth0: lmac2@a0030000 {
+		eth0: lmac2@39090000 {
 			compatible = "lewiz,lmac2";
-			reg = <0x0 0xa0030000 0x0 0x10000>;
+			reg = <0x0 0x39090000 0x0 0x10000>;
 			interrupts = <GIC_SPI 91 IRQ_TYPE_LEVEL_HIGH
 						  GIC_SPI 93 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "tx", "rx";
