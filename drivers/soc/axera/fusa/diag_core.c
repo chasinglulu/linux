@@ -100,11 +100,8 @@ count_show(struct device *dev, struct device_attribute *attr, char *page)
 {
 	int ret;
 	struct diag_core *dc = dev_get_drvdata(dev);
-	unsigned long flags;
 
-	spin_lock_irqsave(&dc->dm_lock, flags);
-	ret = scnprintf(page, PAGE_SIZE - 1, "%u\n", dc->module_cnt);
-	spin_unlock_irqrestore(&dc->dm_lock, flags);
+	ret = scnprintf(page, PAGE_SIZE - 1, "%u\n", atomic_read(&dc->module_cnt));
 
 	return ret;
 }
@@ -119,25 +116,23 @@ ATTRIBUTE_GROUPS(diag_core);
 
 static struct diag_module_mgt *diagnosis_lookup_module(uint16_t mid)
 {
-	struct diag_module_mgt *dmm = NULL, *tmp;
-	unsigned long flags;
+	struct diag_module_mgt *dmm = NULL;
 
 	if (!dc_ctrl)
 		return NULL;
 
-	spin_lock_irqsave(&dc_ctrl->dm_lock, flags);
 	if (list_empty(&dc_ctrl->dm_head)) {
-		spin_unlock_irqrestore(&dc_ctrl->dm_lock, flags);
 		return NULL;
 	}
 
-	list_for_each_entry_safe(dmm, tmp, &dc_ctrl->dm_head, node) {
+	rcu_read_lock();
+	list_for_each_entry_rcu(dmm, &dc_ctrl->dm_head, node) {
 		if(dmm->mid == mid) {
-			spin_unlock_irqrestore(&dc_ctrl->dm_lock, flags);
+			rcu_read_unlock();
 			return dmm;
 		}
 	}
-	spin_unlock_irqrestore(&dc_ctrl->dm_lock, flags);
+	rcu_read_unlock();
 
 	return NULL;
 }
@@ -302,9 +297,9 @@ int diagnosis_register(const struct diag_register_info *reg_info)
 	}
 
 	spin_lock(&dc->dm_lock);
-	dc->module_cnt++;
-	list_add_tail(&dmm->node, &dc->dm_head);
+	list_add_tail_rcu(&dmm->node, &dc->dm_head);
 	spin_unlock(&dc->dm_lock);
+	atomic_inc(&dc->module_cnt);
 
 	return 0;
 
@@ -468,12 +463,13 @@ int diagnosis_deregister(uint16_t mid)
 
 	list_for_each_entry_safe(dcm, tmp, &dc->dm_head, node) {
 		if (dcm->mid == mid) {
-			list_del(&dcm->node);
-			dc->module_cnt--;
+			atomic_dec(&dc->module_cnt);
+			list_del_rcu(&dcm->node);
 			break;
 		}
 	}
 	spin_unlock(&dc->dm_lock);
+	synchronize_rcu();
 
 	if (list_entry_is_head(dcm, &dc->dm_head, node))
 		return 0;
@@ -540,18 +536,18 @@ static int diag_cycle_check_thread(void *data)
 	do {
 		set_current_state(TASK_UNINTERRUPTIBLE);
 
-		spin_lock(&dc->dm_lock);
-		list_for_each_entry(dcm, &dc->dm_head, node) {
+		rcu_read_lock();
+		list_for_each_entry_rcu(dcm, &dc->dm_head, node){
 			if (dcm->cycle) {
-				spin_unlock(&dc->dm_lock);
+				rcu_read_unlock();
 				retval = dcm->cycle(dcm->data);
 				if (retval)
 					pr_err("The module %d (%s) callback failed\n", dcm->mid, dcm->name);
 
-				spin_lock(&dc->dm_lock);
+				rcu_read_lock();
 			}
 		}
-		spin_unlock(&dc->dm_lock);
+		rcu_read_unlock();
 
 		schedule_timeout(msecs_to_jiffies(CYCLE_CHK_PERIOD));
 	}while(!kthread_should_stop());
@@ -588,7 +584,7 @@ static int diag_core_probe(struct platform_device *pdev)
 	}
 	dc->pdev = pdev;
 
-	INIT_LIST_HEAD(&dc->dm_head);
+	INIT_LIST_HEAD_RCU(&dc->dm_head);
 	spin_lock_init(&dc->dm_lock);
 	init_waitqueue_head(&dc->wq_head);
 

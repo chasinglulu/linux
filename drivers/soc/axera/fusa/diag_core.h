@@ -75,7 +75,7 @@ struct diag_core {
 	struct class *class;
 	struct device *dev;
 
-	uint32_t module_cnt;
+	atomic_t module_cnt;
 	struct list_head dm_head;
 	spinlock_t dm_lock;
 
