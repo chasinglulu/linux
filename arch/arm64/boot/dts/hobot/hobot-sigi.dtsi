@@ -282,10 +282,11 @@
 		eth0: lmac2@39090000 {
 			compatible = "lewiz,lmac2";
 			reg = <0x0 0x39090000 0x0 0x10000>;
-			interrupts = <GIC_SPI 91 IRQ_TYPE_LEVEL_HIGH
-						  GIC_SPI 93 IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <GIC_SPI 92 IRQ_TYPE_LEVEL_HIGH
+						  GIC_SPI 94 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "tx", "rx";
 			mac-address = [00 40 8c 00 00 01];
+//			mac-address = [40 50 52 02 F0 B5];
 			status = "disabled";
 		};
 
