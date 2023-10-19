@@ -33,3 +33,4 @@ subdir-y += ti
 subdir-y += toshiba
 subdir-y += xilinx
 subdir-y += hobot
+subdir-y += axera

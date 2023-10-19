@@ -1,0 +1,156 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2023 Axera Technology Co., Ltd
+ *
+ */
+
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+/ {
+	compatible = "axera,lambert";
+
+	interrupt-parent = <&gic>;
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	cpus {
+		#size-cells = <0>;
+		#address-cells = <1>;
+
+		cpu-map {
+			socket0 {
+				cluster0 {
+					core0 {
+						cpu = <&cpu0>;
+					};
+					core1 {
+						cpu = <&cpu1>;
+					};
+					core2 {
+						cpu = <&cpu2>;
+					};
+					core3 {
+						cpu = <&cpu3>;
+					};
+				};
+
+				cluster1 {
+					core0 {
+						cpu = <&cpu4>;
+					};
+					core1 {
+						cpu = <&cpu5>;
+					};
+					core2 {
+						cpu = <&cpu6>;
+					};
+					core3 {
+						cpu = <&cpu7>;
+					};
+				};
+			};
+		};
+
+		cpu0: cpu@0 {
+			reg = <0x0>;
+			enable-method = "psci";
+			compatible = "arm,cortex-a76";
+			device_type = "cpu";
+		};
+		cpu1: cpu@100 {
+			reg = <0x100>;
+			enable-method = "psci";
+			compatible = "arm,cortex-a76";
+			device_type = "cpu";
+		};
+		cpu2: cpu@200 {
+			reg = <0x200>;
+			enable-method = "psci";
+			compatible = "arm,cortex-a76";
+			device_type = "cpu";
+		};
+		cpu3: cpu@300 {
+			reg = <0x300>;
+			enable-method = "psci";
+			compatible = "arm,cortex-a76";
+			device_type = "cpu";
+		};
+		cpu4: cpu@10000 {
+			reg = <0x10000>;
+			enable-method = "psci";
+			compatible = "arm,cortex-a76";
+			device_type = "cpu";
+		};
+		cpu5: cpu@10100 {
+			reg = <0x10100>;
+			enable-method = "psci";
+			compatible = "arm,cortex-a76";
+			device_type = "cpu";
+		};
+		cpu6: cpu@10200 {
+			reg = <0x10200>;
+			enable-method = "psci";
+			compatible = "arm,cortex-a76";
+			device_type = "cpu";
+		};
+		cpu7: cpu@10300 {
+			reg = <0x10300>;
+			enable-method = "psci";
+			compatible = "arm,cortex-a76";
+			device_type = "cpu";
+		};
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+				<GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+				<GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+				<GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>;
+	};
+
+	gic: gic@30b00000 {
+		compatible = "arm,gic-400";
+		interrupt-controller;
+		reg = <0x0 0x00449000 0x0 0x1000>,
+			  <0x0 0x0044a000 0x0 0x2000>,
+			  <0x0 0x0044c000 0x0 0x2000>,
+			  <0x0 0x0044e000 0x0 0x2000>;
+		interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
+		#interrupt-cells = <3>;
+	};
+
+	apb_clk: apb-pclk {
+		compatible = "fixed-clock";
+		clock-output-names = "clk24mhz";
+		clock-frequency = <24000000>;
+		#clock-cells = <0>;
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		uart0: serial@1068a000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x0 0x1068a000 0x0 0x1000>;
+			interrupts = <GIC_SPI 73 IRQ_TYPE_LEVEL_HIGH>;
+			clock-frequency = <192000000>; //192MHz
+			reg-io-width = <4>;
+			reg-shift = <2>;
+			status = "disabled";
+		};
+
+		uart1: serial@1068b000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x0 0x1068b000 0x0 0x1000>;
+			interrupts = <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>;
+			clock-frequency = <192000000>; //192MHz
+			reg-io-width = <4>;
+			reg-shift = <2>;
+			status = "disabled";
+		};
+	};
+};
