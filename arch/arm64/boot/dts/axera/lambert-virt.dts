@@ -1,0 +1,39 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (C) 2023 Axera Technology Co., Ltd
+ *
+ */
+/dts-v1/;
+#include "axera-lambert.dtsi"
+
+/ {
+	compatible = "axera,lambert-virt";
+	model = "Axera Lambert Virtual Development Platform";
+	#address-cells = <2>;
+	#size-cells = <2>;
+	interrupt-parent = <&gic>;
+
+	memory@400000000 {
+		reg = <0x4 0x00000000 0x1 0x00000000>;
+		device_type = "memory";
+	};
+
+	aliases {
+		serial0 = &uart0;
+		serial1 = &uart1;
+	};
+
+	chosen {
+		stdout-path = &uart0;
+	};
+};
+
+&uart0 {
+	compatible = "ns16550";
+	status = "okay";
+};
+
+&uart1 {
+	compatible = "ns16550";
+	status = "okay";
+};
