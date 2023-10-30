@@ -18,6 +18,24 @@
 		device_type = "memory";
 	};
 
+	reserved_memory: reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		secure_region {
+			compatible = "removed-dma-pool";
+			reg = <0x4 0x00104000 0x0 0x00200000>;
+			no-map;
+		};
+
+		tee_share_region {
+			compatible = "removed-dma-pool";
+			reg = <0x4 0x04000000 0x0 0x02000000>;
+			no-map;
+		};
+	};
+
 	aliases {
 		serial0 = &uart0;
 		serial1 = &uart1;
@@ -25,15 +43,14 @@
 
 	chosen {
 		stdout-path = &uart0;
+		bootargs = "console=uart8250,mmio32,0x1068a000,115200n8 loglevel=10";
 	};
 };
 
 &uart0 {
-	compatible = "ns16550";
 	status = "okay";
 };
 
 &uart1 {
-	compatible = "ns16550";
 	status = "okay";
 };
