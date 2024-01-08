@@ -31,7 +31,7 @@
 
 		tee_share_region {
 			compatible = "removed-dma-pool";
-			reg = <0x4 0x04000000 0x0 0x02000000>;
+			reg = <0x4 0x04000000 0x0 0x04000000>;
 			no-map;
 		};
 	};
@@ -39,6 +39,20 @@
 	aliases {
 		serial0 = &uart0;
 		serial1 = &uart1;
+	};
+
+	sdhci_core: sdhci-core {
+		compatible = "fixed-clock";
+		clock-output-names = "mmc-core";
+		clock-frequency = <50000000>;
+		#clock-cells = <0>;
+	};
+
+	sdhci_bus: sdhci-bus {
+		compatible = "fixed-clock";
+		clock-output-names = "mmc-bus";
+		clock-frequency = <50000000>;
+		#clock-cells = <0>;
 	};
 
 	chosen {
@@ -52,5 +66,11 @@
 };
 
 &uart1 {
+	status = "okay";
+};
+
+&mmc0 {
+	clocks = <&sdhci_core>, <&sdhci_bus>;
+	clock-names = "core", "bus";
 	status = "okay";
 };
