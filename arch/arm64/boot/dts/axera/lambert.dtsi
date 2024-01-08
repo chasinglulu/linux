@@ -109,6 +109,11 @@
 			cpu_suspend = <0xc4000001>;
 			method = "smc";
 		};
+
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
 	};
 
 	timer {
