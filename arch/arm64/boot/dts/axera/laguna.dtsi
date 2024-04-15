@@ -1,0 +1,16 @@
+/* SPDX-License-Identifier: GPL-2.0+
+ *
+ * Axera Laguna SoC device tree
+ *
+ * Copyright (C) 2024 Charleye <wangkart@aliyun.com>
+ */
+
+/dts-v1/;
+
+/ {
+	model = "Axera Laguna Automotive SoC";
+	compatible = "axera,laguna";
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+};

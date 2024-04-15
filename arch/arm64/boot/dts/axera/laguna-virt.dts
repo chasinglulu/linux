@@ -1,0 +1,17 @@
+/* SPDX-License-Identifier: GPL-2.0+
+ *
+ * Axera Laguna Virtual Platform device tree
+ *
+ * Copyright (C) 2024 Charleye <wangkart@aliyun.com>
+ */
+
+/dts-v1/;
+#include "laguna.dtsi"
+
+/ {
+	model = "Laguna Virtual Platform";
+	compatible = "axera,laguna-virt";
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+};
