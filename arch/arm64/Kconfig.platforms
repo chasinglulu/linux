@@ -359,16 +359,21 @@ config ARCH_HOBOT
 	help
 	  This enables support for Horizon Robotics Jounery 6 SOC Family
 
-config ARCH_AXERA
-	bool "Axera Platforms"
+config ARCH_AXERA_AUTO
+	bool "Axera Automotive SoC Family"
 	help
-	  This enables support for the ARMv8 based Axera chipsets,
-	  like the AX650.
+	  This enables support for Axera Automotive SoC Family
 
-config ARCH_AX_LAMBERT
-	bool "Axera Lambert SoC Platforms"
-	depends on ARCH_AXERA
+config AXERA_TARGET_LAMBERT
+	bool "Axera Lambert SoC Platform"
+	depends on ARCH_AXERA_AUTO
 	help
 	  This enables support for Axera Lambert SoC.
+
+config AXERA_TARGET_LAGUNA
+	bool "Axera Laguna SoC Platform"
+	depends on ARCH_AXERA_AUTO
+	help
+	  This enables support for Axera Laguna SoC.
 
 endmenu # "Platform selection"
