@@ -6,11 +6,128 @@
  */
 
 /dts-v1/;
+#include <dt-bindings/interrupt-controller/arm-gic.h>
 
 / {
 	model = "Axera Laguna Automotive SoC";
 	compatible = "axera,laguna";
 	#address-cells = <2>;
 	#size-cells = <2>;
+	interrupt-parent = <&gic>;
 
+	cpus {
+		#size-cells = <0>;
+		#address-cells = <1>;
+
+		cpu-map {
+			socket0 {
+				cluster0 {
+					core0 {
+						cpu = <&cpu0>;
+					};
+					core1 {
+						cpu = <&cpu1>;
+					};
+					core2 {
+						cpu = <&cpu2>;
+					};
+					core3 {
+						cpu = <&cpu3>;
+					};
+				};
+			};
+		};
+
+		cpu0: cpu@0 {
+			compatible = "arm,cortex-a55";
+			device_type = "cpu";
+			enable-method = "psci";
+			reg = <0x0>;
+		};
+		cpu1: cpu@100 {
+			compatible = "arm,cortex-a55";
+			device_type = "cpu";
+			enable-method = "psci";
+			reg = <0x100>;
+		};
+		cpu2: cpu@200 {
+			compatible = "arm,cortex-a55";
+			device_type = "cpu";
+			enable-method = "psci";
+			reg = <0x200>;
+		};
+		cpu3: cpu@300 {
+			compatible = "arm,cortex-a55";
+			device_type = "cpu";
+			enable-method = "psci";
+			reg = <0x300>;
+		};
+	};
+
+	firmware {
+		psci: psci {
+			compatible = "arm,psci-1.0", "arm,psci-0.2";
+			migrate = <0xc4000005>;
+			cpu_on = <0xc4000003>;
+			cpu_suspend = <0xc4000001>;
+			method = "smc";
+		};
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_HIGH)>,
+				<GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_HIGH)>,
+				<GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_HIGH)>,
+				<GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_HIGH)>;
+		clock-frequency = <24000000>;
+	};
+
+	aliases {
+		serial0 = &serial0;
+		serial1 = &serial1;
+	};
+
+	apb-pclk {
+		compatible = "fixed-clock";
+		clock-output-names = "clk24mhz";
+		clock-frequency = <24000000>;
+		#clock-cells = <0>;
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		gic: gic@08001000 {
+			compatible = "arm,gic-400";
+			interrupt-controller;
+			reg = <0x0 0x08001000 0x0 0x1000>,
+				<0x0 0x08002000 0x0 0x2000>;
+			interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
+			#interrupt-cells = <3>;
+		};
+
+		serial0: uart@0E403000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x0 0x0E403000 0x0 0x1000>;
+			interrupts = <GIC_SPI 171 IRQ_TYPE_LEVEL_HIGH>;
+			clock-frequency = <192000000>; //192MHz
+			reg-io-width = <4>;
+			reg-shift = <2>;
+			status = "disabled";
+		};
+
+		serial1: uart@0E404000 {
+			compatible = "snps,dw-apb-uart";
+			reg = <0x0 0x0E404000 0x0 0x1000>;
+			interrupts = <GIC_SPI 172 IRQ_TYPE_LEVEL_HIGH>;
+			clock-frequency = <192000000>; //192MHz
+			reg-io-width = <4>;
+			reg-shift = <2>;
+			status = "disabled";
+		};
+	};
 };
