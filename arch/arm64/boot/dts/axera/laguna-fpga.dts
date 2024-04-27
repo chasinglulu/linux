@@ -1,0 +1,37 @@
+/* SPDX-License-Identifier: GPL-2.0+
+ *
+ * Axera Laguna FPGA Platform device tree
+ *
+ * Copyright (C) 2024 Charleye <wangkart@aliyun.com>
+ */
+
+/dts-v1/;
+#include "laguna.dtsi"
+
+/ {
+	compatible = "axera,laguna-fpga";
+	model = "Axera Laguna FPGA Platform";
+	#address-cells = <2>;
+	#size-cells = <2>;
+	interrupt-parent = <&gic>;
+
+	memory@400000000 {
+		reg = <0x1 0x00000000 0x2 0x00000000>;
+		device_type = "memory";
+	};
+
+	chosen {
+		stdout-path = &serial0;
+		bootargs = "console=uart8250,mmio32,0x0E403000 rdinit=/sbin/init rw loglevel=10";
+	};
+};
+
+&serial0 {
+	clock-frequency = <10000000>; //10MHz
+	status = "okay";
+};
+
+&serial1 {
+	clock-frequency = <10000000>; //10MHz
+	status = "okay";
+};
