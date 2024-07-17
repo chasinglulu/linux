@@ -21,17 +21,32 @@
 	};
 
 	chosen {
-		stdout-path = &serial0;
-		bootargs = "console=uart8250,mmio32,0x0E403000 rdinit=/init rw loglevel=10";
+		stdout-path = &serial1;
+		bootargs = "earlycon=uart8250,mmio32,0x0E403000 console=ttyS1,115200n8 rdinit=/init rw loglevel=10";
 	};
-};
-
-&serial0 {
-	clock-frequency = <10000000>; //10MHz
-	status = "okay";
 };
 
 &serial1 {
 	clock-frequency = <10000000>; //10MHz
-	status = "disabled";
+	status = "okay";
+};
+
+&serial2 {
+	clock-frequency = <10000000>; //10MHz
+	status = "okay";
+};
+
+&serial3 {
+	clock-frequency = <10000000>; //10MHz
+	status = "okay";
+};
+
+&serial4 {
+	clock-frequency = <10000000>; //10MHz
+	status = "okay";
+};
+
+&serial5 {
+	clock-frequency = <10000000>; //10MHz
+	status = "okay";
 };
