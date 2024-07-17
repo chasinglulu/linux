@@ -320,6 +320,16 @@ config RESET_ZYNQ
 	help
 	  This enables the reset controller driver for Xilinx Zynq SoCs.
 
+config RESET_SYSCON
+	tristate "Generic SYSCON Reset Driver"
+	depends on HAS_IOMEM
+	select MFD_SYSCON
+	help
+	  This enables the reset driver support for devices with
+	  memory-mapped reset registers as part of a syscon device node. If
+	  you wish to use the reset framework for such memory-mapped devices,
+	  say Y here. Otherwise, say N.
+
 source "drivers/reset/sti/Kconfig"
 source "drivers/reset/hisilicon/Kconfig"
 source "drivers/reset/tegra/Kconfig"
