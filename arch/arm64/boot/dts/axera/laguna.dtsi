@@ -67,6 +67,23 @@
 		};
 	};
 
+	pmu: cpu-pmu {
+		compatible = "arm,cortex-a55-pmu";
+		interrupts = <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-affinity = <&cpu0>, <&cpu1>, <&cpu2>, <&cpu3>;
+		status = "disabled";
+	};
+
+	dsu_pmu: dsu-pmu {
+		compatible = "arm,dsu-pmu";
+		interrupts = <GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>;
+		cpus = <&cpu0>, <&cpu1>, <&cpu2>, <&cpu3>;
+		status = "disabled";
+	};
+
 	firmware {
 		psci: psci {
 			compatible = "arm,psci-1.0", "arm,psci-0.2";

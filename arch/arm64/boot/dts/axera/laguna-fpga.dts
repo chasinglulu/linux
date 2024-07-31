@@ -26,6 +26,14 @@
 	};
 };
 
+&pmu {
+	status = "okay";
+};
+
+&dsu_pmu {
+	status = "okay";
+};
+
 &serial1 {
 	clock-frequency = <10000000>; //10MHz
 	status = "okay";
