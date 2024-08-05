@@ -137,7 +137,7 @@
 		serial1: uart@0E403000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x0 0x0E403000 0x0 0x1000>;
-			interrupts = <GIC_SPI 167 IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <GIC_SPI 164 IRQ_TYPE_LEVEL_HIGH>;
 			clock-frequency = <192000000>; //192MHz
 			resets = <&periph_sysrst0 LAGUNA_PERI_UART1_PRST>,
 					 <&periph_sysrst0 LAGUNA_PERI_UART1_RST>;
@@ -150,7 +150,7 @@
 		serial2: uart@0E404000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x0 0x0E404000 0x0 0x1000>;
-			interrupts = <GIC_SPI 168 IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <GIC_SPI 165 IRQ_TYPE_LEVEL_HIGH>;
 			clock-frequency = <192000000>; //192MHz
 			resets = <&periph_sysrst0 LAGUNA_PERI_UART2_PRST>,
 					 <&periph_sysrst0 LAGUNA_PERI_UART2_RST>;
@@ -163,7 +163,7 @@
 		serial3: uart@0E405000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x0 0x0E405000 0x0 0x1000>;
-			interrupts = <GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <GIC_SPI 166 IRQ_TYPE_LEVEL_HIGH>;
 			clock-frequency = <192000000>; //192MHz
 			resets = <&periph_sysrst0 LAGUNA_PERI_UART3_PRST>,
 					 <&periph_sysrst0 LAGUNA_PERI_UART3_RST>;
@@ -176,7 +176,7 @@
 		serial4: uart@0E410000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x0 0x0E410000 0x0 0x1000>;
-			interrupts = <GIC_SPI 170 IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <GIC_SPI 167 IRQ_TYPE_LEVEL_HIGH>;
 			clock-frequency = <192000000>; //192MHz
 			resets = <&periph_sysrst0 LAGUNA_PERI_UART4_PRST>,
 					 <&periph_sysrst0 LAGUNA_PERI_UART4_RST>;
@@ -189,7 +189,7 @@
 		serial5: uart@0E411000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x0 0x0E411000 0x0 0x1000>;
-			interrupts = <GIC_SPI 171 IRQ_TYPE_LEVEL_HIGH>;
+			interrupts = <GIC_SPI 168 IRQ_TYPE_LEVEL_HIGH>;
 			clock-frequency = <192000000>; //192MHz
 			resets = <&periph_sysrst0 LAGUNA_PERI_UART5_PRST>,
 					 <&periph_sysrst0 LAGUNA_PERI_UART5_RST>;
