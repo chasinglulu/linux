@@ -1,2 +1,3 @@
 
 obj-$(CONFIG_AXERA_FUSA_SUPPORT)	+= fusa/
+obj-$(CONFIG_SUBSYS_CONTROLLER)		+= glbcon/

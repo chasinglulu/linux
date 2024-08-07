@@ -4,7 +4,7 @@
 #
 
 menu "Axera SoC drivers"
-	depends on ARCH_AXERA || COMPILE_TEST
+	depends on ARCH_AXERA_AUTO || COMPILE_TEST
 
 config AXERA_FUSA_SUPPORT
 	bool "Axera FuSa Support"
@@ -42,5 +42,11 @@ config AXERA_DIAG_TEST
 	help
 	  Say yes here to add support for Diagnonsis Framework
 	  Core Test.
+
+config SUBSYS_CONTROLLER
+	bool "Support Subsystem Global Register Controller Driver"
+	depends on MFD_SYSCON
+	help
+	  This option enable subsysctl driver for Global Register Controller.
 
 endmenu
