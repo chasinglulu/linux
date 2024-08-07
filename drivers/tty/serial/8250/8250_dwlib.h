@@ -42,6 +42,7 @@ struct dw8250_data {
 	struct notifier_block	clk_notifier;
 	struct work_struct	clk_work;
 	struct reset_control	*rst;
+	struct subsysctl	*sc;
 
 	unsigned int		skip_autocfg:1;
 	unsigned int		uart_16550_compatible:1;

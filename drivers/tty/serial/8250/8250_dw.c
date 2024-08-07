@@ -22,6 +22,7 @@
 #include <linux/pm_runtime.h>
 #include <linux/property.h>
 #include <linux/reset.h>
+#include <linux/glbcon.h>
 #include <linux/slab.h>
 #include <linux/workqueue.h>
 
@@ -630,6 +631,10 @@ static int dw8250_probe(struct platform_device *pdev)
 	err = devm_add_action_or_reset(dev, dw8250_clk_disable_unprepare, data->pclk);
 	if (err)
 		return err;
+
+	data->sc = devm_subsysctl_get(dev, "xfersel");
+	if (!IS_ERR(data->sc))
+		subsysctl_assert(data->sc);
 
 	data->rst = devm_reset_control_get_optional_exclusive(dev, NULL);
 	if (IS_ERR(data->rst))
