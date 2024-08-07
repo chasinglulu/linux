@@ -8,6 +8,7 @@
 /dts-v1/;
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/reset/laguna-sysctl.h>
+#include <dt-bindings/mfd/laguna-sysctl.h>
 
 #include "laguna-global-ctrl.dtsi"
 #include "laguna-cru.dtsi"
@@ -142,6 +143,8 @@
 			resets = <&periph_sysrst0 LAGUNA_PERI_UART1_PRST>,
 					 <&periph_sysrst0 LAGUNA_PERI_UART1_RST>;
 			reset-names = "prst", "rst";
+			syscons = <&uart_xfer_sel 0 UART_XFER_RS232_4LINE>;
+			syscon-names = "xfersel";
 			reg-io-width = <4>;
 			reg-shift = <2>;
 			status = "disabled";
@@ -155,6 +158,8 @@
 			resets = <&periph_sysrst0 LAGUNA_PERI_UART2_PRST>,
 					 <&periph_sysrst0 LAGUNA_PERI_UART2_RST>;
 			reset-names = "prst", "rst";
+			syscons = <&uart_xfer_sel 2 UART_XFER_RS232_4LINE>;
+			syscon-names = "xfersel";
 			reg-io-width = <4>;
 			reg-shift = <2>;
 			status = "disabled";
@@ -168,6 +173,8 @@
 			resets = <&periph_sysrst0 LAGUNA_PERI_UART3_PRST>,
 					 <&periph_sysrst0 LAGUNA_PERI_UART3_RST>;
 			reset-names = "prst", "rst";
+			syscons = <&uart_xfer_sel 4 UART_XFER_RS232_4LINE>;
+			syscon-names = "xfersel";
 			reg-io-width = <4>;
 			reg-shift = <2>;
 			status = "disabled";
@@ -181,6 +188,8 @@
 			resets = <&periph_sysrst0 LAGUNA_PERI_UART4_PRST>,
 					 <&periph_sysrst0 LAGUNA_PERI_UART4_RST>;
 			reset-names = "prst", "rst";
+			syscons = <&uart_xfer_sel 6 UART_XFER_RS232_2LINE>;
+			syscon-names = "xfersel";
 			reg-io-width = <4>;
 			reg-shift = <2>;
 			status = "disabled";
@@ -194,6 +203,8 @@
 			resets = <&periph_sysrst0 LAGUNA_PERI_UART5_PRST>,
 					 <&periph_sysrst0 LAGUNA_PERI_UART5_RST>;
 			reset-names = "prst", "rst";
+			syscons = <&uart_xfer_sel 8 UART_XFER_RS232_2LINE>;
+			syscon-names = "xfersel";
 			reg-io-width = <4>;
 			reg-shift = <2>;
 			status = "disabled";

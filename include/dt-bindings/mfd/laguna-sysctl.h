@@ -14,4 +14,15 @@
 #define LAGUNA_SYSCTL_PERIPH_SWRST1      0x124
 #define LAGUNA_SYSCTL_PERIPH_CAN_SWRST   0x164
 
+/* glb regions */
+#define LAGUNA_SYSCON_PERIPH_EMAC       0x28
+#define LAGUNA_SYSCON_PERIPH_UART       0x30
+#define LAGUNA_SYSCON_PERIPH_EMAC1      0x6C
+
+/* Periph UART register field */
+#define UART_XFER_RS232_2LINE         0
+#define UART_XFER_RS232_4LINE         1
+#define UART_XFER_IRDA_2LINE          2
+#define UART_XFER_RS485_4LINE         3
+
 #endif
