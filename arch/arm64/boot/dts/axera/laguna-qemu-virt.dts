@@ -22,7 +22,7 @@
 
 	chosen {
 		stdout-path = &serial1;
-		bootargs = "console=uart8250,mmio32,0x0E403000 rdinit=/sbin/init rw loglevel=10";
+		bootargs = "earlycon=uart8250,mmio32,0x0E403000 console=ttyS1,115200n8 rdinit=/init rw loglevel=10";
 	};
 };
 
