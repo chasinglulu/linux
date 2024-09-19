@@ -143,6 +143,8 @@
 			resets = <&periph_sysrst0 LAGUNA_PERI_UART1_PRST>,
 					 <&periph_sysrst0 LAGUNA_PERI_UART1_RST>;
 			reset-names = "prst", "rst";
+			clocks = <&clk_periph_uart1>, <&pclk_periph_uart1>;
+			clock-names = "baudclk", "apb_pclk";
 			syscons = <&uart_xfer_sel 0 UART_XFER_RS232_4LINE>;
 			syscon-names = "xfersel";
 			reg-io-width = <4>;
@@ -158,6 +160,8 @@
 			resets = <&periph_sysrst0 LAGUNA_PERI_UART2_PRST>,
 					 <&periph_sysrst0 LAGUNA_PERI_UART2_RST>;
 			reset-names = "prst", "rst";
+			clocks = <&clk_periph_uart2>, <&pclk_periph_uart2>;
+			clock-names = "baudclk", "apb_pclk";
 			syscons = <&uart_xfer_sel 2 UART_XFER_RS232_4LINE>;
 			syscon-names = "xfersel";
 			reg-io-width = <4>;
@@ -173,6 +177,8 @@
 			resets = <&periph_sysrst0 LAGUNA_PERI_UART3_PRST>,
 					 <&periph_sysrst0 LAGUNA_PERI_UART3_RST>;
 			reset-names = "prst", "rst";
+			clocks = <&clk_periph_uart3>, <&pclk_periph_uart3>;
+			clock-names = "baudclk", "apb_pclk";
 			syscons = <&uart_xfer_sel 4 UART_XFER_RS232_4LINE>;
 			syscon-names = "xfersel";
 			reg-io-width = <4>;
@@ -188,6 +194,8 @@
 			resets = <&periph_sysrst0 LAGUNA_PERI_UART4_PRST>,
 					 <&periph_sysrst0 LAGUNA_PERI_UART4_RST>;
 			reset-names = "prst", "rst";
+			clocks = <&clk_periph_uart4>, <&pclk_periph_uart4>;
+			clock-names = "baudclk", "apb_pclk";
 			syscons = <&uart_xfer_sel 6 UART_XFER_RS232_2LINE>;
 			syscon-names = "xfersel";
 			reg-io-width = <4>;
@@ -203,6 +211,8 @@
 			resets = <&periph_sysrst0 LAGUNA_PERI_UART5_PRST>,
 					 <&periph_sysrst0 LAGUNA_PERI_UART5_RST>;
 			reset-names = "prst", "rst";
+			clocks = <&clk_periph_uart5>, <&pclk_periph_uart5>;
+			clock-names = "baudclk", "apb_pclk";
 			syscons = <&uart_xfer_sel 8 UART_XFER_RS232_2LINE>;
 			syscon-names = "xfersel";
 			reg-io-width = <4>;
