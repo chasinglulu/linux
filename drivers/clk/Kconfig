@@ -438,6 +438,13 @@ config COMMON_CLK_K210
 	help
 	  Support for the Canaan Kendryte K210 RISC-V SoC clocks.
 
+config COMMON_CLK_AXERA
+	bool "Clock driver for the Axera Automotive SoC"
+	depends on OF && ARCH_AXERA_AUTO
+	default ARCH_AXERA_AUTO
+	help
+	  Support for the Axera Automotive SoC clocks.
+
 source "drivers/clk/actions/Kconfig"
 source "drivers/clk/analogbits/Kconfig"
 source "drivers/clk/baikal-t1/Kconfig"
@@ -471,6 +478,7 @@ source "drivers/clk/visconti/Kconfig"
 source "drivers/clk/x86/Kconfig"
 source "drivers/clk/xilinx/Kconfig"
 source "drivers/clk/zynqmp/Kconfig"
+source "drivers/clk/axera/Kconfig"
 
 # Kunit test cases
 config CLK_KUNIT_TEST

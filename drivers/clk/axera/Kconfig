@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: GPL-2.0+
+#
+# Copyright (C) 2024 Charleye <wangkart@aliyun.com>
+#
+
+config CLK_LAGUNA
+	tristate "Clock support for Axera Laguna SoC"
+	depends on COMMON_CLK_AXERA || COMPILE_TEST
+	help
+	  Enables the clock translation layer from DT to device clocks.
