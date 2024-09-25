@@ -7,7 +7,7 @@
 
 /dts-v1/;
 #include "laguna.dtsi"
-#include "laguna-clocks.dtsi"
+#include "laguna-fpga-clocks.dtsi"
 
 / {
 	compatible = "axera,laguna-qemu";
@@ -25,6 +25,10 @@
 		stdout-path = &serial1;
 		bootargs = "earlycon=uart8250,mmio32,0x0E403000 console=ttyS1,115200n8 rdinit=/init rw loglevel=10";
 	};
+};
+
+&psci {
+	status = "okay";
 };
 
 &serial1 {
