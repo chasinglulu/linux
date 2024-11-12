@@ -6,9 +6,25 @@
  */
 
 /dts-v1/;
-#include "laguna.dtsi"
-#include "laguna-fpga-clocks.dtsi"
+#define CONFIG_LUA_FPGA_VA
+#define CONFIG_LUA_SAFETY_INIT
 
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/mfd/laguna-syscon.h>
+#include <dt-bindings/mfd/laguna-cru.h>
+#include <dt-bindings/reset/laguna-reset.h>
+#include <dt-bindings/clock/laguna-clock.h>
+
+#ifdef CONFIG_LUA_SAFETY_INIT
+#include "laguna-safety-clocks-fpga.dtsi"
+#include "laguna-safety-cru.dtsi"
+#include "laguna-safety.dtsi"
+#endif
+
+#include "laguna-global-ctrl.dtsi"
+#include "laguna-clocks-fpga.dtsi"
+#include "laguna-cru.dtsi"
+#include "laguna.dtsi"
 / {
 	compatible = "axera,laguna-fpga";
 	model = "Axera Laguna FPGA Platform";
@@ -54,3 +70,35 @@
 &serial5 {
 	status = "okay";
 };
+
+#ifdef CONFIG_LUA_SAFETY_INIT
+&serial0 {
+	status = "okay";
+};
+#endif
+
+#if defined(CONFIG_LUA_FPGA_VA)
+&isp_cru {
+	status = "disabled";
+};
+
+&isp_sen_cru {
+	status = "disabled";
+};
+
+&mm_cru {
+	status = "disabled";
+};
+
+&mm_core_cru {
+	status = "disabled";
+};
+
+&npu_cru {
+	status = "disabled";
+};
+
+&vpu_cru {
+	status = "disabled";
+};
+#endif

@@ -6,8 +6,22 @@
  */
 
 /dts-v1/;
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/mfd/laguna-syscon.h>
+#include <dt-bindings/mfd/laguna-cru.h>
+#include <dt-bindings/reset/laguna-reset.h>
+#include <dt-bindings/clock/laguna-clock.h>
+
+#ifdef CONFIG_LUA_SAFETY_INIT
+#include "laguna-safety-clocks-fpga.dtsi"
+#include "laguna-safety-cru.dtsi"
+#include "laguna-safety.dtsi"
+#endif
+
+#include "laguna-global-ctrl.dtsi"
+#include "laguna-clocks-fpga.dtsi"
+#include "laguna-cru.dtsi"
 #include "laguna.dtsi"
-#include "laguna-fpga-clocks.dtsi"
 
 / {
 	compatible = "axera,laguna-qemu";

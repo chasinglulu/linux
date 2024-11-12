@@ -5,13 +5,6 @@
  * Copyright (C) 2024 Charleye <wangkart@aliyun.com>
  */
 
-/dts-v1/;
-#include <dt-bindings/interrupt-controller/arm-gic.h>
-#include <dt-bindings/reset/laguna-sysctl.h>
-#include <dt-bindings/mfd/laguna-sysctl.h>
-
-#include "laguna-global-ctrl.dtsi"
-#include "laguna-cru.dtsi"
 / {
 	model = "Axera Laguna Automotive SoC";
 	compatible = "axera,laguna";
@@ -150,9 +143,9 @@
 	pmu: cpu-pmu {
 		compatible = "arm,cortex-a55-pmu";
 		interrupts = <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>,
-			     <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>,
-			     <GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>,
-			     <GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>;
+		             <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>,
+		             <GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>,
+		             <GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-affinity = <&cpu0>, <&cpu1>, <&cpu2>, <&cpu3>;
 		status = "disabled";
 	};
@@ -178,9 +171,9 @@
 	timer {
 		compatible = "arm,armv7-timer";
 		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_HIGH)>,
-				<GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_HIGH)>,
-				<GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_HIGH)>,
-				<GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_HIGH)>;
+		             <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_HIGH)>,
+		             <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_HIGH)>,
+		             <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_HIGH)>;
 		clock-frequency = <24000000>;
 	};
 
@@ -190,13 +183,6 @@
 		serial3 = &serial3;
 		serial4 = &serial4;
 		serial5 = &serial5;
-	};
-
-	apb-pclk {
-		compatible = "fixed-clock";
-		clock-output-names = "clk24mhz";
-		clock-frequency = <24000000>;
-		#clock-cells = <0>;
 	};
 
 	soc {
@@ -209,7 +195,7 @@
 			compatible = "arm,gic-400";
 			interrupt-controller;
 			reg = <0x0 0x08001000 0x0 0x1000>,
-				<0x0 0x08002000 0x0 0x2000>;
+			      <0x0 0x08002000 0x0 0x2000>;
 			interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
 			#interrupt-cells = <3>;
 		};
@@ -219,9 +205,9 @@
 			reg = <0x0 0x0E403000 0x0 0x1000>;
 			interrupts = <GIC_SPI 164 IRQ_TYPE_LEVEL_HIGH>;
 			clock-frequency = <192000000>; //192MHz
-			resets = <&periph_sysrst0 LAGUNA_PERI_UART1_PRST>,
-					 <&periph_sysrst0 LAGUNA_PERI_UART1_RST>;
-			reset-names = "prst", "rst";
+			resets = <&periph_sysrst_0 PERIPH_UART1_SW_PRST>,
+			         <&periph_sysrst_0 PERIPH_UART1_SW_RST>;
+			reset-names = "apb_prst", "baudrst";
 			clocks = <&clk_periph_uart1>, <&pclk_periph_uart1>;
 			clock-names = "baudclk", "apb_pclk";
 			syscons = <&uart_xfer_sel 0 UART_XFER_RS232_4LINE>;
@@ -236,9 +222,9 @@
 			reg = <0x0 0x0E404000 0x0 0x1000>;
 			interrupts = <GIC_SPI 165 IRQ_TYPE_LEVEL_HIGH>;
 			clock-frequency = <192000000>; //192MHz
-			resets = <&periph_sysrst0 LAGUNA_PERI_UART2_PRST>,
-					 <&periph_sysrst0 LAGUNA_PERI_UART2_RST>;
-			reset-names = "prst", "rst";
+			resets = <&periph_sysrst_0 PERIPH_UART2_SW_PRST>,
+			         <&periph_sysrst_0 PERIPH_UART2_SW_RST>;
+			reset-names = "apb_prst", "baudrst";
 			clocks = <&clk_periph_uart2>, <&pclk_periph_uart2>;
 			clock-names = "baudclk", "apb_pclk";
 			syscons = <&uart_xfer_sel 2 UART_XFER_RS232_4LINE>;
@@ -253,9 +239,9 @@
 			reg = <0x0 0x0E405000 0x0 0x1000>;
 			interrupts = <GIC_SPI 166 IRQ_TYPE_LEVEL_HIGH>;
 			clock-frequency = <192000000>; //192MHz
-			resets = <&periph_sysrst0 LAGUNA_PERI_UART3_PRST>,
-					 <&periph_sysrst0 LAGUNA_PERI_UART3_RST>;
-			reset-names = "prst", "rst";
+			resets = <&periph_sysrst_0 PERIPH_UART3_SW_PRST>,
+			         <&periph_sysrst_0 PERIPH_UART3_SW_RST>;
+			reset-names = "apb_prst", "baudrst";
 			clocks = <&clk_periph_uart3>, <&pclk_periph_uart3>;
 			clock-names = "baudclk", "apb_pclk";
 			syscons = <&uart_xfer_sel 4 UART_XFER_RS232_4LINE>;
@@ -270,9 +256,9 @@
 			reg = <0x0 0x0E410000 0x0 0x1000>;
 			interrupts = <GIC_SPI 167 IRQ_TYPE_LEVEL_HIGH>;
 			clock-frequency = <192000000>; //192MHz
-			resets = <&periph_sysrst0 LAGUNA_PERI_UART4_PRST>,
-					 <&periph_sysrst0 LAGUNA_PERI_UART4_RST>;
-			reset-names = "prst", "rst";
+			resets = <&periph_sysrst_0 PERIPH_UART4_SW_PRST>,
+			         <&periph_sysrst_0 PERIPH_UART4_SW_RST>;
+			reset-names = "apb_prst", "baudrst";
 			clocks = <&clk_periph_uart4>, <&pclk_periph_uart4>;
 			clock-names = "baudclk", "apb_pclk";
 			syscons = <&uart_xfer_sel 6 UART_XFER_RS232_2LINE>;
@@ -287,9 +273,9 @@
 			reg = <0x0 0x0E411000 0x0 0x1000>;
 			interrupts = <GIC_SPI 168 IRQ_TYPE_LEVEL_HIGH>;
 			clock-frequency = <192000000>; //192MHz
-			resets = <&periph_sysrst0 LAGUNA_PERI_UART5_PRST>,
-					 <&periph_sysrst0 LAGUNA_PERI_UART5_RST>;
-			reset-names = "prst", "rst";
+			resets = <&periph_sysrst_0 PERIPH_UART5_SW_PRST>,
+			         <&periph_sysrst_0 PERIPH_UART5_SW_RST>;
+			reset-names = "apb_prst", "baudrst";
 			clocks = <&clk_periph_uart5>, <&pclk_periph_uart5>;
 			clock-names = "baudclk", "apb_pclk";
 			syscons = <&uart_xfer_sel 8 UART_XFER_RS232_2LINE>;
