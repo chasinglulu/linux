@@ -29,8 +29,10 @@ static int mux_clk_bind(struct device_node *np)
 	regmap = of_parse_phandle(np, "regmap", 0);
 	if (IS_ERR(regmap)) {
 		pr_err("Failed to get 'regmap' property\n");
-		return -ENODEV;
+		return -ENXIO;
 	}
+	if (!of_device_is_available(regmap))
+		return -ENXIO;
 	pr_debug("regmap node name: %s\n", of_node_full_name(regmap));
 	reg = of_iomap(regmap, 0);
 
@@ -97,4 +99,4 @@ static void __init of_mux_clk_setup(struct device_node *node)
 {
 	mux_clk_bind(node);
 }
-CLK_OF_DECLARE(ti_gate_clk, "axera,lua-mux-clocks", of_mux_clk_setup);
+CLK_OF_DECLARE(axera_mux_clk, "axera,lua-mux-clocks", of_mux_clk_setup);

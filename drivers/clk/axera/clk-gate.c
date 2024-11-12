@@ -29,8 +29,10 @@ static int gate_clk_bind(struct device_node *node)
 	regmap = of_parse_phandle(node, "regmap", 0);
 	if (IS_ERR(regmap)) {
 		pr_err("Failed to get 'regmap' property\n");
-		return -ENODEV;
+		return -ENXIO;
 	}
+	if (!of_device_is_available(regmap))
+		return -ENXIO;
 	pr_debug("regmap node name: %s\n", regmap->full_name);
 	reg = of_iomap(regmap, 0);
 
@@ -76,4 +78,4 @@ static void __init of_gate_clk_setup(struct device_node *node)
 {
 	gate_clk_bind(node);
 }
-CLK_OF_DECLARE(ti_gate_clk, "axera,lua-gate-clocks", of_gate_clk_setup);
+CLK_OF_DECLARE(axera_gate_clk, "axera,lua-gate-clocks", of_gate_clk_setup);

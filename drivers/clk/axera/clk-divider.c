@@ -39,14 +39,13 @@ static unsigned long clk_divider_recalc_rate(struct clk_hw *hw,
 
 	val = clk_div_readl(divider) >> divider->shift;
 	val &= clk_div_mask(divider->width);
-	pr_err("%s\n", __func__);
 
 	return divider_recalc_rate(hw, parent_rate, val, divider->table,
-				   divider->flags, divider->width);
+	                   divider->flags, divider->width);
 }
 
 static int clk_divider_set_rate(struct clk_hw *hw, unsigned long rate,
-				unsigned long parent_rate)
+                    unsigned long parent_rate)
 {
 	struct clk_divider *divider = to_clk_divider(hw);
 	int value;
@@ -91,7 +90,7 @@ static int clk_divider_set_rate(struct clk_hw *hw, unsigned long rate,
 }
 
 static long clk_divider_round_rate(struct clk_hw *hw, unsigned long rate,
-				unsigned long *prate)
+                                    unsigned long *prate)
 {
 	struct clk_divider *divider = to_clk_divider(hw);
 
@@ -103,16 +102,16 @@ static long clk_divider_round_rate(struct clk_hw *hw, unsigned long rate,
 		val &= clk_div_mask(divider->width);
 
 		return divider_ro_round_rate(hw, rate, prate, divider->table,
-					     divider->width, divider->flags,
-					     val);
+		                        divider->width, divider->flags,
+		                        val);
 	}
 
 	return divider_round_rate(hw, rate, prate, divider->table,
-				  divider->width, divider->flags);
+	                  divider->width, divider->flags);
 }
 
 static int clk_divider_determine_rate(struct clk_hw *hw,
-				      struct clk_rate_request *req)
+                            struct clk_rate_request *req)
 {
 	struct clk_divider *divider = to_clk_divider(hw);
 
@@ -124,12 +123,12 @@ static int clk_divider_determine_rate(struct clk_hw *hw,
 		val &= clk_div_mask(divider->width);
 
 		return divider_ro_determine_rate(hw, req, divider->table,
-						 divider->width,
-						 divider->flags, val);
+		                                   divider->width,
+		                                   divider->flags, val);
 	}
 
 	return divider_determine_rate(hw, req, divider->table, divider->width,
-				      divider->flags);
+	                                divider->flags);
 }
 
 const struct clk_ops ax_clk_divider_ops = {
@@ -140,11 +139,11 @@ const struct clk_ops ax_clk_divider_ops = {
 };
 
 static struct clk_hw *_clk_hw_register_divider_table(struct device *dev,
-		struct device_node *np, const char *name,
-		const char *parent_name, const struct clk_hw *parent_hw,
-		const struct clk_parent_data *parent_data, unsigned long flags,
-		void __iomem *reg, u8 shift, u8 width, u8 clk_divider_flags,
-		const struct clk_div_table *table, spinlock_t *lock)
+            struct device_node *np, const char *name,
+            const char *parent_name, const struct clk_hw *parent_hw,
+            const struct clk_parent_data *parent_data, unsigned long flags,
+            void __iomem *reg, u8 shift, u8 width, u8 clk_divider_flags,
+            const struct clk_div_table *table, spinlock_t *lock)
 {
 	struct clk_divider *div;
 	struct clk_hw *hw;
@@ -195,15 +194,15 @@ static struct clk_hw *_clk_hw_register_divider_table(struct device *dev,
 }
 
 static struct clk *_clk_register_divider(struct device *dev, const char *name,
-		const char *parent_name, unsigned long flags,
-		void __iomem *reg, u8 shift, u8 width,
-		u8 clk_divider_flags)
+            const char *parent_name, unsigned long flags,
+            void __iomem *reg, u8 shift, u8 width,
+            u8 clk_divider_flags)
 {
 	struct clk_hw *hw;
 
 	hw = _clk_hw_register_divider_table(dev, NULL, name, parent_name, NULL,
-			NULL, flags, reg, shift, width, clk_divider_flags,
-			NULL, &clk_divider_lock);
+	             NULL, flags, reg, shift, width, clk_divider_flags,
+	             NULL, &clk_divider_lock);
 	if (IS_ERR(hw))
 		return ERR_CAST(hw);
 	return hw->clk;
@@ -224,8 +223,10 @@ static int divider_clk_bind(struct device_node *np)
 	regmap = of_parse_phandle(np, "regmap", 0);
 	if (IS_ERR(regmap)) {
 		pr_err("Failed to get 'regmap' property\n");
-		return -ENODEV;
+		return -ENXIO;
 	}
+	if (!of_device_is_available(regmap))
+		return -ENXIO;
 	pr_debug("regmap node name: %s\n", of_node_full_name(regmap));
 	reg = of_iomap(regmap, 0);
 
@@ -239,20 +240,20 @@ static int divider_clk_bind(struct device_node *np)
 		name = of_node_full_name(subnode);
 
 		ret = of_property_read_u32_index(subnode, "bit-shift",
-					0, &shift);
+		               0, &shift);
 		if (ret) {
 			pr_err("Failed to get 'bit-shift' in %s node\n", name);
 			continue;
 		}
 		ret = of_property_read_u32_index(subnode, "bit-width",
-					0, &width);
+		          0, &width);
 		if (ret) {
 			pr_err("Failed to get 'bit-width' in %s node\n", name);
 			continue;
 		}
 
 		ret = of_property_read_u32_index(subnode, "bit-update",
-					0, &update);
+		          0, &update);
 		if (ret) {
 			pr_err("Failed to get 'bit-update' in %s node\n", name);
 			continue;
@@ -261,15 +262,15 @@ static int divider_clk_bind(struct device_node *np)
 		divider_flags |= update << 24;
 
 		ret = of_parse_phandle_with_args(subnode, "clocks",
-					"#clock-cells", 0, &args);
+		               "#clock-cells", 0, &args);
 		if (unlikely(ret)) {
 			pr_err("Failed to get parent clk of %s\n ret=%d", name, ret);
 			continue;
 		}
 
 		clk = _clk_register_divider(NULL, name, of_node_full_name(args.np),
-				CLK_DIVIVER_UPDATE_BIT, reg + offset,
-				shift, width, divider_flags);
+		             CLK_DIVIVER_UPDATE_BIT, reg + offset,
+		             shift, width, divider_flags);
 		if (IS_ERR(clk))
 			pr_warn("Failed to register '%s' clk\n", name);
 	}
@@ -281,4 +282,4 @@ static void __init of_divider_clk_setup(struct device_node *node)
 {
 	divider_clk_bind(node);
 }
-CLK_OF_DECLARE(ti_gate_clk, "axera,lua-divider-clocks", of_divider_clk_setup);
+CLK_OF_DECLARE(axera_div_clk, "axera,lua-divider-clocks", of_divider_clk_setup);
