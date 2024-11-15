@@ -215,9 +215,10 @@ static int divider_clk_bind(struct device_node *np)
 	struct clk *clk;
 	const char *name;
 	void __iomem *reg;
-	uint32_t offset;
 	uint32_t shift, width, update;
 	uint32_t divider_flags = 0;
+	uint32_t offset;
+	ulong flags = 0;
 	int ret;
 
 	regmap = of_parse_phandle(np, "regmap", 0);
@@ -268,8 +269,13 @@ static int divider_clk_bind(struct device_node *np)
 			continue;
 		}
 
+		flags |= CLK_SET_RATE_PARENT;
+		flags |= CLK_DIVIVER_UPDATE_BIT;
+		if (of_property_read_bool(subnode, "laguna,clk-is-critical"))
+			flags |= CLK_IS_CRITICAL;
+
 		clk = _clk_register_divider(NULL, name, of_node_full_name(args.np),
-		             CLK_DIVIVER_UPDATE_BIT, reg + offset,
+		             flags, reg + offset,
 		             shift, width, divider_flags);
 		if (IS_ERR(clk))
 			pr_warn("Failed to register '%s' clk\n", name);

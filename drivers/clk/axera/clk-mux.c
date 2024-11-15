@@ -76,8 +76,9 @@ static int mux_clk_bind(struct device_node *np)
 			parents[i] = of_node_full_name(args.np);
 		}
 
-		if (of_property_read_bool(np, "axera,set-rate-parent"))
-			flags |= CLK_SET_RATE_PARENT;
+		flags |= CLK_SET_RATE_PARENT;
+		if (of_property_read_bool(subnode, "laguna,clk-is-critical"))
+			flags |= CLK_IS_CRITICAL;
 
 		hw = clk_hw_register_mux(NULL, name, parents, count,
 				flags, reg + offset, shift, width, 0, &clk_mux_lock);

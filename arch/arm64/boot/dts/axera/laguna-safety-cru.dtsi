@@ -608,6 +608,7 @@
 					clock-output-names = "pclk_safe_uart0";
 					bit-shift = <PCLK_SAFE_UART0>;
 					#clock-cells = <0>;
+					laguna,clk-is-critical;
 				};
 
 				clk_safe_uart0: clk_safe_uart0 {
@@ -617,6 +618,7 @@
 					clock-output-names = "clk_safe_uart0";
 					bit-shift = <CLK_SAFE_UART0>;
 					#clock-cells = <0>;
+					laguna,clk-is-critical;
 				};
 
 				pclk_safe_spi_m1: pclk_safe_spi_m1 {

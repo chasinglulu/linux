@@ -16,14 +16,13 @@ DEFINE_SPINLOCK(clk_gate_lock);
 
 static int gate_clk_bind(struct device_node *node)
 {
+	struct device_node *subnode, *regmap;
 	struct of_phandle_args args;
-	struct device_node *subnode;
+	uint32_t offset, shift;
 	struct clk_hw *hw;
 	const char *name;
 	void __iomem *reg;
-	struct device_node *regmap;
-	uint32_t offset;
-	uint32_t bit_idx;
+	ulong flags = 0;
 	int ret;
 
 	regmap = of_parse_phandle(node, "regmap", 0);
@@ -46,7 +45,7 @@ static int gate_clk_bind(struct device_node *node)
 		name = of_node_full_name(subnode);
 
 		ret = of_property_read_u32_index(subnode, "bit-shift",
-					0, &bit_idx);
+					0, &shift);
 		if (unlikely(ret)) {
 			pr_err("Failed to get 'bit-shift' in %s node\n", name);
 			continue;
@@ -58,8 +57,12 @@ static int gate_clk_bind(struct device_node *node)
 			continue;
 		}
 
+		flags |= CLK_SET_RATE_PARENT;
+		if (of_property_read_bool(subnode, "laguna,clk-is-critical"))
+			flags |= CLK_IS_CRITICAL;
+
 		hw = clk_hw_register_gate(NULL, name, of_node_full_name(args.np),
-				0, reg + offset, bit_idx, 0, &clk_gate_lock);
+				0, reg + offset, shift, 0, &clk_gate_lock);
 		if (IS_ERR(hw))
 			pr_warn("Failed to register '%s' clk\n", name);
 
