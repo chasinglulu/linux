@@ -284,5 +284,21 @@
 			reg-shift = <2>;
 			status = "disabled";
 		};
+
+		iso_m3: iso_m@0E01C000 {
+			compatible = "axera,laguna-bus-isom";
+			reg = <0x0 0x0E01C000 0x0 0x4000>;
+			interrupts = <GIC_SPI 179 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "periph_sys_fab";
+			resets = <&periph_sysrst_1 PERIPH_ISO_SW_PRST>,
+			         <&periph_sysrst_1 PERIPH_ISO_24M_SW_RST>;
+			reset-names = "apb_prst", "isom_rst";
+			clocks = <&pclk_periph_iso>, <&clk_periph_iso_24m>;
+			clock-names = "apb_pclk", "isom_clk";
+			axera,isom-timeout = <1>;
+			// axera,isom-bypass;
+			axera,isom-fabirq = <&periph_glb FAB_PERIPH_IRQ>;
+			status = "disabled";
+		};
 	};
 };

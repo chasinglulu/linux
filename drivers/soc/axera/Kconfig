@@ -49,4 +49,9 @@ config SUBSYS_CONTROLLER
 	help
 	  This option enable subsysctl driver for Global Register Controller.
 
+config AXERA_BUS_ISOM
+	bool "Bus Master Isolation Driver"
+	help
+	  If this is set, it will enable bus master isolation driver.
+
 endmenu
