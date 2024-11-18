@@ -100,10 +100,17 @@ int syscon_reset_probe(struct platform_device *pdev)
 	priv->rcdev.owner = THIS_MODULE;
 	priv->rcdev.of_node = np;
 	priv->rcdev.nr_resets = fls(priv->mask);
+	dev_dbg(dev, "rcdev nr_resets: %d\n", priv->rcdev.nr_resets);
 
 	platform_set_drvdata(pdev, priv);
+	if (devm_reset_controller_register(dev, &priv->rcdev)) {
+		dev_err(dev, "register reset controller failed\n");
+		return -ENXIO;
+	}
 
-	return devm_reset_controller_register(dev, &priv->rcdev);
+	priv->rcdev.dev = dev;
+
+	return 0;
 }
 
 static const struct of_device_id syscon_reset_ids[] = {
