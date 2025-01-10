@@ -300,5 +300,45 @@
 			axera,isom-fabirq = <&periph_glb FAB_PERIPH_IRQ>;
 			status = "disabled";
 		};
+
+		ospi: spi@0C040000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible ="snps,dwc-ssi-1.01a";
+			reg = <0x0 0x0C040000 0x0 0x1000>;
+			interrupts = <GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>;
+			spi-max-frequency = <100000000>;
+			num-cs = <4>;
+			reg-io-width = <4>;
+			clocks = <&clk_flash_ospi_eb>,
+			         <&hclk_flash_ospi>;
+			clock-names = "ssi_clk", "pclk";
+			resets = <&flash_sysrst FLASH_SPIFLASH_SW_RST>,
+			         <&flash_sysrst FLASH_SPIFLASH_SW_HRST>;
+			reset-names = "spi", "apb_prst";
+			status = "disabled";
+
+			spinor0: spinor@0 {
+				#address-cells = <1>;
+				#size-cells = <1>;
+				compatible = "jedec,spi-nor";
+				reg = <0>;
+				spi-max-frequency = <50000000>;
+				spi-tx-bus-width = <4>;
+				spi-rx-bus-width = <4>;
+				m25p,fast-read;
+				broken-flash-reset;
+				status = "disabled";
+			};
+
+			spinand0: spinand@1 {
+				#address-cells = <1>;
+				#size-cells = <1>;
+				compatible = "spi-nand";
+				spi-max-frequency = <40000000>;
+				reg = <1>;
+				status = "disabled";
+			};
+		};
 	};
 };
