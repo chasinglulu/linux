@@ -54,4 +54,9 @@ config AXERA_BUS_ISOM
 	help
 	  If this is set, it will enable bus master isolation driver.
 
+config AXERA_HW_INFO
+	bool "Hardware-specific information display Driver"
+	help
+	  If this is set, it will enable hardware-specific information display driver.
+
 endmenu
