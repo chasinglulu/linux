@@ -41,8 +41,16 @@
 	};
 };
 
-&psci {
+&hwinfo {
 	status = "okay";
+};
+
+&mmc0 {
+	status = "okay";
+};
+
+&psci {
+	status = "disabled";
 };
 
 &serial1 {
@@ -67,5 +75,13 @@
 
 &serial5 {
 	clock-frequency = <10000000>; //10MHz
+	status = "okay";
+};
+
+&ospi {
+	status = "okay";
+};
+
+&spinand0 {
 	status = "okay";
 };
