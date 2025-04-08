@@ -256,11 +256,11 @@
 			clock-output-names = "apll_675m";
 		};
 
-		apll_297m: apll_297m {
+		apll_225m: apll_225m {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <10000000>;
-			clock-output-names = "apll_297m";
+			clock-output-names = "apll_225m";
 		};
 
 		apll_54m: apll_54m {
@@ -270,32 +270,25 @@
 			clock-output-names = "apll_54m";
 		};
 
-		apll_19p92m: apll_19p92m {
+		apll_45m: apll_45m {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <10000000>;
-			clock-output-names = "apll_19p92m";
+			clock-output-names = "apll_45m";
 		};
 
-		apll_16p6m: apll_16p6m {
+		apll_36m: apll_36m {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <10000000>;
-			clock-output-names = "apll_16p6m";
+			clock-output-names = "apll_36m";
 		};
 
-		apll_13p28m: apll_13p28m {
+		apll_27m: apll_27m {
 			compatible = "fixed-clock";
 			#clock-cells = <0>;
 			clock-frequency = <10000000>;
-			clock-output-names = "apll_13p28m";
-		};
-
-		apll_9p96m: apll_9p96m {
-			compatible = "fixed-clock";
-			#clock-cells = <0>;
-			clock-frequency = <10000000>;
-			clock-output-names = "apll_9p96m";
+			clock-output-names = "apll_27m";
 		};
 
 		npu_pll_996m: npu_pll_996m {

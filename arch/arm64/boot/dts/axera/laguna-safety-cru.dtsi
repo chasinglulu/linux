@@ -1483,6 +1483,17 @@
 			};
 		};
 
+		safety_pllc: safety_pllc@006C2000 {
+			compatible = "syscon", "simple-mfd";
+			reg = <0x00 0x006C2000 0x00 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+			pll-ready = <0x9C>;
+			pll-frc-en = <0xC4>;
+			pll-frc-en-sw = <0xD0>;
+			pll-reopen = <0xDC>;
+		};
+
 		safety_top_cru: safety_top_cru@006D2000 {
 			compatible = "syscon", "simple-mfd";
 			reg = <0x00 0x006D2000 0x00 0x1000>;

@@ -5,3 +5,4 @@
 
 obj-$(CONFIG_CLK_LAGUNA) += soc_clk.o
 soc_clk-objs += clk-mux.o clk-gate.o clk-divider.o
+soc_clk-objs += clk-pll.o

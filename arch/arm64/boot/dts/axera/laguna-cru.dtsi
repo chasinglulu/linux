@@ -712,8 +712,8 @@
 
 				sclk_i2s_m_sel: sclk_i2s_m_sel {
 					compatible = "clk_mux";
-					clocks = <&apll_13p28m>, <&apll_16p6m>,
-					         <&apll_19p92m>;
+					clocks = <&apll_36m>, <&apll_45m>,
+					         <&apll_54m>;
 					clock-names = "apll_16p384m", "apll_20p48m",
 					              "apll_24p576m";
 					#clock-cells = <0>;
@@ -792,7 +792,7 @@
 
 				clk_i2s_ref_sel: clk_i2s_ref_sel {
 					compatible = "clk_mux";
-					clocks = <&apll_9p96m>, <&apll_16p6m>,
+					clocks = <&apll_27m>, <&apll_45m>,
 					         <&fab_pll_24m>, <&epll_25m>;
 					clock-names = "apll_12p288m", "apll_20p48m",
 					              "fab_pll_24m", "epll_25m";
@@ -1598,7 +1598,7 @@
 				clk_sen_ref0_sel: clk_sen_ref0_sel {
 					compatible = "clk_mux";
 					clocks = <&fab_pll_24m>, <&apll_54m>,
-					         <&apll_297m>;
+					         <&apll_225m>;
 					clock-names = "fab_pll_24m", "apll_54m",
 					              "apll_297m";
 					#clock-cells = <0>;
@@ -1610,7 +1610,7 @@
 				clk_sen_ref1_sel: clk_sen_ref1_sel {
 					compatible = "clk_mux";
 					clocks = <&fab_pll_24m>, <&apll_54m>,
-					         <&apll_297m>;
+					         <&apll_225m>;
 					clock-names = "fab_pll_24m", "apll_54m",
 					              "apll_297m";
 					#clock-cells = <0>;
@@ -2825,6 +2825,17 @@
 				mask = <0xFFFF>;
 				assert-high = <1>;
 			};
+		};
+
+		main_pllc: main-pllc@18001000 {
+			compatible = "syscon", "simple-mfd";
+			reg = <0x00 0x18001000 0x00 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+			pll-ready = <0x104>;
+			pll-frc-en = <0x144>;
+			pll-frc-en-sw = <0x150>;
+			pll-reopen = <0x15C>;
 		};
 	};
 };

@@ -5,6 +5,8 @@
  * Copyright (C) 2024 Charleye <wangkart@aliyun.com>
  */
 
+#define CONFIG_LUA_SAFETY_INIT
+
 /dts-v1/;
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/mfd/laguna-syscon.h>
@@ -13,13 +15,13 @@
 #include <dt-bindings/clock/laguna-clock.h>
 
 #ifdef CONFIG_LUA_SAFETY_INIT
-#include "laguna-safety-clocks-fpga.dtsi"
+#include "laguna-safety-clocks.dtsi"
 #include "laguna-safety-cru.dtsi"
 #include "laguna-safety.dtsi"
 #endif
 
 #include "laguna-global-ctrl.dtsi"
-#include "laguna-clocks-fpga.dtsi"
+#include "laguna-clocks.dtsi"
 #include "laguna-cru.dtsi"
 #include "laguna.dtsi"
 

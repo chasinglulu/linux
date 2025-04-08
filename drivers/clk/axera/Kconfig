@@ -8,3 +8,10 @@ config CLK_LAGUNA
 	depends on COMMON_CLK_AXERA || COMPILE_TEST
 	help
 	  Enables the clock translation layer from DT to device clocks.
+
+
+config LUA_PLL_FIXED_FREQ
+	bool "Fixed PLL Clock Frequency"
+	depends on CLK_LAGUNA
+	help
+	  This option enables support for fixed PLL frequency.
