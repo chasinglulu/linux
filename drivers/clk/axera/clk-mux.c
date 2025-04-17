@@ -76,7 +76,8 @@ static int mux_clk_bind(struct device_node *np)
 			parents[i] = of_node_full_name(args.np);
 		}
 
-		flags |= CLK_SET_RATE_PARENT;
+		if (of_property_read_bool(subnode, "laguna,clk-set-rate-parent"))
+			flags |= CLK_SET_RATE_PARENT;
 		if (of_property_read_bool(subnode, "laguna,clk-is-critical"))
 			flags |= CLK_IS_CRITICAL;
 

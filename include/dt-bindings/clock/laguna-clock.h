@@ -283,6 +283,7 @@
 #define CLK_DEB_GPIO                    28
 #define CLK_COMM_TLB                    29
 #define PCLK_COMM_CLK_MNR               30
+#define PCLK_MBIST_24M                  31
 
 /* flash subsystem clk_mux_0 register */
 #define CLK_FLASH_GLB                   0
