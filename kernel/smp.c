@@ -1115,6 +1115,7 @@ void __init smp_init(void)
 {
 	int num_nodes, num_cpus;
 
+	printk_prefer_direct_enter();
 	idle_threads_init();
 	cpuhp_threads_init();
 

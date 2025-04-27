@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2010, Octasic semiconductor.
  */
-
+#define DEBUG
 #include <linux/clk.h>
 #include <linux/err.h>
 #include <linux/platform_device.h>

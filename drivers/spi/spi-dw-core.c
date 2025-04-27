@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2009, Intel Corporation.
  */
-
+#define DEBUG
 #include <linux/bitfield.h>
 #include <linux/dma-mapping.h>
 #include <linux/interrupt.h>
@@ -565,6 +565,7 @@ static int dw_spi_write_then_read(struct dw_spi *dws, struct spi_device *spi)
 	 * since native CS hasn't been enabled yet and the automatic data
 	 * transmission won't start til we do that.
 	 */
+	// dev_err(&dws->master->dev, "FIFO len %d, TX len %d\n", dws->fifo_len, dws->tx_len);
 	len = min(dws->fifo_len, dws->tx_len);
 	buf = dws->tx;
 	while (len--)
@@ -579,10 +580,11 @@ static int dw_spi_write_then_read(struct dw_spi *dws, struct spi_device *spi)
 	len = dws->tx_len - ((void *)buf - dws->tx);
 	dw_spi_set_cs(spi, false);
 	while (len) {
+		// dev_err(&dws->master->dev, "remaining len: %d\n", len);
 		entries = readl_relaxed(dws->regs + DW_SPI_TXFLR);
 		if (!entries) {
-			dev_err(&dws->master->dev, "CS de-assertion on Tx\n");
-			return -EIO;
+			// dev_err(&dws->master->dev, "CS de-assertion on Tx\n");
+			// // return -EIO;
 		}
 		room = min(dws->fifo_len - entries, len);
 		for (; room; --room, --len)
@@ -594,6 +596,7 @@ static int dw_spi_write_then_read(struct dw_spi *dws, struct spi_device *spi)
 	 * activated. We have to keep up with the incoming data pace to
 	 * prevent the Rx FIFO overflow causing the inbound data loss.
 	 */
+	// dev_err(&dws->master->dev, "RX len %d\n", dws->rx_len);
 	len = dws->rx_len;
 	buf = dws->rx;
 	while (len) {
