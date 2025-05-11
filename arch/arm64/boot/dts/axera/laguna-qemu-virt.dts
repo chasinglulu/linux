@@ -39,7 +39,7 @@
 
 	chosen {
 		stdout-path = &serial1;
-		bootargs = "earlycon=uart8250,mmio32,0x0E403000 console=ttyS1,115200n8 rdinit=/init rw loglevel=10";
+		bootargs = "console=ttyS1,115200n8 rdinit=/init rw loglevel=10";
 	};
 };
 
@@ -85,5 +85,10 @@
 };
 
 &spinand0 {
+	status = "okay";
+};
+
+&serial0 {
+	clock-frequency = <10000000>; //10MHz
 	status = "okay";
 };

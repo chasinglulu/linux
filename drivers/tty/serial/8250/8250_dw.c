@@ -632,10 +632,6 @@ static int dw8250_probe(struct platform_device *pdev)
 	if (err)
 		return err;
 
-	data->sc = devm_subsysctl_get(dev, "xfersel");
-	if (!IS_ERR(data->sc))
-		subsysctl_assert(data->sc);
-
 	data->rst = devm_reset_control_get_optional_exclusive(dev, NULL);
 	if (IS_ERR(data->rst))
 		return PTR_ERR(data->rst);
@@ -645,6 +641,20 @@ static int dw8250_probe(struct platform_device *pdev)
 	err = devm_add_action_or_reset(dev, dw8250_reset_control_assert, data->rst);
 	if (err)
 		return err;
+
+	data->prst = devm_reset_control_get_optional_exclusive(dev, "apb_rst");
+	if (IS_ERR(data->prst))
+		return PTR_ERR(data->prst);
+
+	reset_control_deassert(data->prst);
+
+	err = devm_add_action_or_reset(dev, dw8250_reset_control_assert, data->prst);
+	if (err)
+		return err;
+
+	data->sc = devm_subsysctl_get(dev, "xfersel");
+	if (!IS_ERR(data->sc))
+		subsysctl_assert(data->sc);
 
 	dw8250_quirks(p, data);
 

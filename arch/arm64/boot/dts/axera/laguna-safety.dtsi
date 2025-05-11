@@ -39,9 +39,9 @@
 			reg = <0x0 0x00602000 0x0 0x1000>;
 			interrupts = <GIC_SPI 84 IRQ_TYPE_LEVEL_HIGH>;
 			clock-frequency = <192000000>; //192MHz
-			resets = <&safety_sysrst_1 SAFE_UART0_SW_PRST>,
-			         <&safety_sysrst_1 SAFE_UART0_SW_RST>;
-			reset-names = "apb_prst", "baudrst";
+			resets = <&safety_sysrst_1 SAFE_UART0_SW_RST>,
+			         <&safety_sysrst_1 SAFE_UART0_SW_PRST>;
+			reset-names = "baudrst", "apb_prst";
 			clocks = <&clk_safe_uart0>, <&pclk_safe_uart0>;
 			clock-names = "baudclk", "apb_pclk";
 			syscons = <&safety_uart_xfer_sel 0 UART_XFER_RS232_2LINE>;
