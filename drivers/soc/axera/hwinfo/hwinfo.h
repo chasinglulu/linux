@@ -2,7 +2,7 @@
 /*
  * Hardware-specific information display driver
  *
- * Copyright (C) 2025 Charleye <wangkart@aliyun.com.com>
+ * Copyright (C) 2024 Charleye <wangkart@aliyun.com>
  */
 
 #ifndef _HWINFO_H_
@@ -16,6 +16,10 @@ enum {
 	PROC_CHIP_NAME,
 	PROC_BOOT_LOG,
 	PROC_BOOT_DEVICE,
+	PROC_ABORT_MAIN,
+	PROC_ABORT_SAFETY,
+	PROC_VERSION,
+	PROC_CHIP_TYPE,
 };
 
 struct hwinfo_priv {
@@ -26,6 +30,11 @@ struct hwinfo_priv {
 	uint64_t bootlog_record_len;
 	uint32_t bootdev;
 	const char *bootdev_name;
+	uint32_t main_abort;
+	uint32_t safety_abort;
+	const char *main_abort_name;
+	const char *safety_abort_name;
+	const char *version;
 };
 
 #endif

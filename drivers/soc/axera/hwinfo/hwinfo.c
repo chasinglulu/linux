@@ -2,7 +2,7 @@
 /*
  * Hardware-specific information display driver
  *
- * Copyright (C) 2025 Charleye <wangkart@aliyun.com.com>
+ * Copyright (C) 2025 Charleye <wangkart@aliyun.com>
  */
 
 #define pr_fmt(fmt) "hwinfo: " fmt
@@ -23,6 +23,7 @@
 
 #include "hwinfo.h"
 
+static struct hwinfo_priv *hwinfo_priv = NULL;
 static struct proc_dir_entry *root_hwinfo_dir;
 static u64 hwinfo_uid = 0;
 
@@ -32,6 +33,9 @@ static const char *proc_entry_name[] = {
 	[PROC_CHIP_NAME]    = "chip-name",
 	[PROC_BOOT_LOG]     = "bootlog",
 	[PROC_BOOT_DEVICE]  = "bootdev",
+	[PROC_ABORT_MAIN]   = "main-abort",
+	[PROC_ABORT_SAFETY] = "safety-abort",
+	[PROC_VERSION]      = "sdk_version",
 };
 
 #define UID_EFUSE_OFFSET    0x0
@@ -79,7 +83,7 @@ static int hwinfo_uid_proc_show(struct seq_file *m, void *v)
 		return ret;
 	}
 
-	seq_printf(m, "UID: 0x%llx\n", hwinfo_uid);
+	seq_printf(m, "UID: 0x%016llx\n", hwinfo_uid);
 	return 0;
 }
 
@@ -97,27 +101,18 @@ static struct proc_ops hwinfo_uid_fops = {
 
 static int hwinfo_board_id_proc_show(struct seq_file *m, void *v)
 {
-	struct hwinfo_priv *priv = m->private;
-
-	if (unlikely(!priv)) {
+	if (unlikely(!hwinfo_priv)) {
 		pr_err("Could not get hwinfo within %s\n", __func__);
 		return -EINVAL;
 	}
 
-	seq_printf(m, "0x%x\n", priv->borad_id);
+	seq_printf(m, "0x%x\n", hwinfo_priv->borad_id);
 	return 0;
 }
 
 static int hwinfo_board_id_proc_open(struct inode *inode, struct file *file)
 {
-	struct hwinfo_priv *priv = inode->i_private;
-
-	if (unlikely(!priv)) {
-		pr_err("Could not get hwinfo within %s\n", __func__);
-		return -EINVAL;
-	}
-
-	return single_open(file, hwinfo_board_id_proc_show, priv);
+	return single_open(file, hwinfo_board_id_proc_show, NULL);
 }
 
 static struct proc_ops hwinfo_board_id_fops = {
@@ -127,33 +122,24 @@ static struct proc_ops hwinfo_board_id_fops = {
 	.proc_lseek      = seq_lseek,
 };
 
-static int hwinfo_chip_type_proc_show(struct seq_file *m, void *v)
+static int hwinfo_chip_name_proc_show(struct seq_file *m, void *v)
 {
-	struct hwinfo_priv *priv = m->private;
-
-	if (unlikely(!priv)) {
+	if (unlikely(!hwinfo_priv)) {
 		pr_err("Could not get hwinfo within %s\n", __func__);
 		return -EINVAL;
 	}
 
-	seq_printf(m, "%s\n", priv->chip_name ?: "Unknown");
+	seq_printf(m, "%s\n", hwinfo_priv->chip_name ?: "Unknown");
 	return 0;
 }
 
-static int hwinfo_chip_type_proc_open(struct inode *inode, struct file *file)
+static int hwinfo_chip_name_proc_open(struct inode *inode, struct file *file)
 {
-	struct hwinfo_priv *priv = inode->i_private;
-
-	if (unlikely(!priv)) {
-		pr_err("Could not get hwinfo within %s\n", __func__);
-		return -EINVAL;
-	}
-
-	return single_open(file, hwinfo_chip_type_proc_show, priv);
+	return single_open(file, hwinfo_chip_name_proc_show, NULL);
 }
 
-static struct proc_ops hwinfo_chip_type_fops = {
-	.proc_open       = hwinfo_chip_type_proc_open,
+static struct proc_ops hwinfo_chip_name_fops = {
+	.proc_open       = hwinfo_chip_name_proc_open,
 	.proc_release    = single_release,
 	.proc_read       = seq_read,
 	.proc_lseek      = seq_lseek,
@@ -161,40 +147,39 @@ static struct proc_ops hwinfo_chip_type_fops = {
 
 static int hwinfo_boot_log_proc_show(struct seq_file *m, void *v)
 {
-	struct hwinfo_priv *priv = m->private;
 	void __iomem *console_record;
 	char *line, *tmp, *console_buf;
 
-	if (unlikely(!priv)) {
+	if (unlikely(!hwinfo_priv)) {
 		pr_err("Could get hwinfo within %s\n", __func__);
 		return -EINVAL;
 	}
 
-	if (IS_ERR_OR_NULL((void *)priv->bootlog_record_addr)) {
-		dev_err(priv->dev, "Invaild bootloader console record address\n");
+	if (IS_ERR_OR_NULL((void *)hwinfo_priv->bootlog_record_addr)) {
+		dev_err(hwinfo_priv->dev, "Invaild bootloader console record address\n");
 		return 0;
 	}
 
-	console_record = memremap(priv->bootlog_record_addr,
-	                 priv->bootlog_record_len, MEMREMAP_WB);
+	console_record = memremap(hwinfo_priv->bootlog_record_addr,
+	                    hwinfo_priv->bootlog_record_len, MEMREMAP_WB);
 	if (IS_ERR_OR_NULL(console_record)) {
-		dev_err(priv->dev, "Failed to remap bootloader console record\n");
+		dev_err(hwinfo_priv->dev, "Failed to remap bootloader console record\n");
 		return 0;
 	}
 
-	console_buf = kmalloc(priv->bootlog_record_len, GFP_KERNEL);
+	console_buf = kmalloc(hwinfo_priv->bootlog_record_len, GFP_KERNEL);
 	if (!console_buf) {
-		dev_err(priv->dev, "Failed to allocate memory for console record buffer\n");
+		dev_err(hwinfo_priv->dev, "Failed to allocate memory for console record buffer\n");
 		iounmap(console_record);
 		return -ENOMEM;
 	}
-	memcpy(console_buf, console_record, priv->bootlog_record_len);
+	memcpy(console_buf, console_record, hwinfo_priv->bootlog_record_len);
 
 	seq_printf(m, "\nBootloader Console Record: \n");
 	seq_printf(m, "-------------------------------BEGIN------------------------------------\n");
 
 	line = console_buf;
-	while (line < console_buf + priv->bootlog_record_len) {
+	while (line < console_buf + hwinfo_priv->bootlog_record_len) {
 		tmp = strchr(line, '\n');
 		if (tmp) {
 			*tmp = '\0';
@@ -218,33 +203,9 @@ static int hwinfo_boot_log_proc_show(struct seq_file *m, void *v)
 	return 0;
 }
 
-static int hwinfo_bootdev_proc_show(struct seq_file *m, void *v)
-{
-	struct hwinfo_priv *priv = m->private;
-
-	if (unlikely(!priv)) {
-		pr_err("Could get hwinfo within %s\n", __func__);
-		return -EINVAL;
-	}
-
-	if (priv->bootdev_name)
-		seq_printf(m, "%s (0x%x)\n", priv->bootdev_name, priv->bootdev);
-	else
-		seq_printf(m, "Unknown\n");
-
-	return 0;
-}
-
 static int hwinfo_boot_log_proc_open(struct inode *inode, struct file *file)
 {
-	struct hwinfo_priv *priv = inode->i_private;
-
-	if (unlikely(!priv)) {
-		pr_err("Could not get hwinfo within %s\n", __func__);
-		return -EINVAL;
-	}
-
-	return single_open(file, hwinfo_boot_log_proc_show, priv);
+	return single_open(file, hwinfo_boot_log_proc_show, NULL);
 }
 
 static struct proc_ops hwinfo_boot_log_fops = {
@@ -254,16 +215,24 @@ static struct proc_ops hwinfo_boot_log_fops = {
 	.proc_lseek      = seq_lseek,
 };
 
-static int hwinfo_bootdev_proc_open(struct inode *inode, struct file *file)
+static int hwinfo_bootdev_proc_show(struct seq_file *m, void *v)
 {
-	struct hwinfo_priv *priv = inode->i_private;
-
-	if (unlikely(!priv)) {
-		pr_err("Could not get hwinfo within %s\n", __func__);
+	if (unlikely(!hwinfo_priv)) {
+		pr_err("Could get hwinfo within %s\n", __func__);
 		return -EINVAL;
 	}
 
-	return single_open(file, hwinfo_bootdev_proc_show, priv);
+	if (hwinfo_priv->bootdev_name)
+		seq_printf(m, "%s (0x%x)\n", hwinfo_priv->bootdev_name, hwinfo_priv->bootdev);
+	else
+		seq_printf(m, "Unknown\n");
+
+	return 0;
+}
+
+static int hwinfo_bootdev_proc_open(struct inode *inode, struct file *file)
+{
+	return single_open(file, hwinfo_bootdev_proc_show, NULL);
 }
 
 static struct proc_ops hwinfo_bootdev_fops = {
@@ -273,16 +242,99 @@ static struct proc_ops hwinfo_bootdev_fops = {
 	.proc_lseek      = seq_lseek,
 };
 
-static struct proc_ops *hwinfo_proc_ops[] = {
-	[PROC_UID]          = &hwinfo_uid_fops,
-	[PROC_BOARD_ID]     = &hwinfo_board_id_fops,
-	[PROC_CHIP_NAME]    = &hwinfo_chip_type_fops,
-	[PROC_BOOT_LOG]     = &hwinfo_boot_log_fops,
-	[PROC_BOOT_DEVICE]  = &hwinfo_bootdev_fops,
+static int hwinfo_abort_safety_proc_show(struct seq_file *m, void *v)
+{
+	if (unlikely(!hwinfo_priv)) {
+		pr_err("Could get hwinfo within %s\n", __func__);
+		return -EINVAL;
+	}
+
+	if (hwinfo_priv->safety_abort_name)
+		seq_printf(m, "%s (0x%x)\n", hwinfo_priv->safety_abort_name, hwinfo_priv->safety_abort);
+	else
+		seq_printf(m, "Unknown\n");
+
+	return 0;
+}
+
+static int hwinfo_abort_safety_proc_open(struct inode *inode, struct file *file)
+{
+	return single_open(file, hwinfo_abort_safety_proc_show, NULL);
+}
+
+static struct proc_ops hwinfo_abort_safety_fops = {
+	.proc_open       = hwinfo_abort_safety_proc_open,
+	.proc_release    = single_release,
+	.proc_read       = seq_read,
+	.proc_lseek      = seq_lseek,
 };
 
-static int init_hwinfo_proc(struct hwinfo_priv *hwinfo)
+static int hwinfo_abort_main_proc_show(struct seq_file *m, void *v)
 {
+	if (unlikely(!hwinfo_priv)) {
+		pr_err("Could get hwinfo within %s\n", __func__);
+		return -EINVAL;
+	}
+
+	if (hwinfo_priv->main_abort_name)
+		seq_printf(m, "%s (0x%x)\n", hwinfo_priv->main_abort_name, hwinfo_priv->main_abort);
+	else
+		seq_printf(m, "Unknown\n");
+
+	return 0;
+}
+
+static int hwinfo_abort_main_proc_open(struct inode *inode, struct file *file)
+{
+	return single_open(file, hwinfo_abort_main_proc_show, NULL);
+}
+
+static struct proc_ops hwinfo_abort_main_fops = {
+	.proc_open       = hwinfo_abort_main_proc_open,
+	.proc_release    = single_release,
+	.proc_read       = seq_read,
+	.proc_lseek      = seq_lseek,
+};
+
+static int hwinfo_version_proc_show(struct seq_file *m, void *v)
+{
+	if (unlikely(!hwinfo_priv)) {
+		pr_err("Could get hwinfo within %s\n", __func__);
+		return -EINVAL;
+	}
+
+	if (hwinfo_priv->version)
+		seq_printf(m, "SDK Version %s\n", hwinfo_priv->version);
+	else
+		seq_printf(m, "SDK Version Unknown\n");
+
+	return 0;
+}
+
+static int hwinfo_version_proc_open(struct inode *inode, struct file *file)
+{
+	return single_open(file, hwinfo_version_proc_show, NULL);
+}
+
+static struct proc_ops hwinfo_version_fops = {
+	.proc_open       = hwinfo_version_proc_open,
+	.proc_release    = single_release,
+	.proc_read       = seq_read,
+	.proc_lseek      = seq_lseek,
+};
+
+static int init_hwinfo_proc(void)
+{
+	struct proc_ops *hwinfo_proc_ops[] = {
+		[PROC_UID]          = &hwinfo_uid_fops,
+		[PROC_BOARD_ID]     = &hwinfo_board_id_fops,
+		[PROC_CHIP_NAME]    = &hwinfo_chip_name_fops,
+		[PROC_BOOT_LOG]     = &hwinfo_boot_log_fops,
+		[PROC_BOOT_DEVICE]  = &hwinfo_bootdev_fops,
+		[PROC_ABORT_MAIN]   = &hwinfo_abort_main_fops,
+		[PROC_ABORT_SAFETY] = &hwinfo_abort_safety_fops,
+		[PROC_VERSION]      = &hwinfo_version_fops,
+	};
 	struct proc_dir_entry *proc_entry;
 	int i;
 
@@ -300,7 +352,7 @@ static int init_hwinfo_proc(struct hwinfo_priv *hwinfo)
 		}
 
 		proc_entry = proc_create_data(proc_entry_name[i], 0444, root_hwinfo_dir,
-		                  hwinfo_proc_ops[i], hwinfo);
+						   hwinfo_proc_ops[i], NULL);
 		if (IS_ERR_OR_NULL(proc_entry)) {
 			pr_warn("Failed to create %s\n", proc_entry_name[i]);
 		}
@@ -336,7 +388,6 @@ static int hwinfo_probe(struct platform_device *pdev)
 {
 	struct hwinfo_priv *priv;
 	struct device *dev = &pdev->dev;
-	int ret;
 
 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
 	if (IS_ERR_OR_NULL(priv)) {
@@ -344,47 +395,72 @@ static int hwinfo_probe(struct platform_device *pdev)
 		return -ENOMEM;
 	}
 	priv->dev = dev;
+	hwinfo_priv = priv;
 
 	if (of_property_read_u32(dev->of_node, "axera,board-id",
-	          &priv->borad_id)) {
+			   &priv->borad_id)) {
 		dev_err(dev, "Unable to read 'axera,board-id'");
 		return -EINVAL;
 	}
 
 	if (of_property_read_string(dev->of_node, "axera,chip-name",
-	          &priv->chip_name)) {
+			   &priv->chip_name)) {
 		dev_err(dev, "Unable to read 'axera,chip-name'");
 		return -EINVAL;
 	}
 
 	if (of_property_read_u64(dev->of_node, "axera,bootlog-record-addr",
-	           &priv->bootlog_record_addr)) {
+				&priv->bootlog_record_addr)) {
 		dev_warn(dev, "Unable to read 'axera,bootlog-record-addr'");
 		priv->bootlog_record_addr = -1ULL;
 	}
 
 	if (of_property_read_u64(dev->of_node, "axera,bootlog-record-len",
-	           &priv->bootlog_record_len)) {
+				&priv->bootlog_record_len)) {
 		dev_warn(dev, "Unable to read 'axera,bootlog-record-len'");
 		priv->bootlog_record_len = 0;
 	}
 
 	if (of_property_read_string(dev->of_node, "axera,boot-device",
-	           &priv->bootdev_name)) {
+				&priv->bootdev_name)) {
 		dev_warn(dev, "Unable to read 'axera,boot-device'");
 		priv->bootdev_name = NULL;
 	}
 
 	if (of_property_read_u32(dev->of_node, "axera,boot-device-id",
-	           &priv->bootdev)) {
+				&priv->bootdev)) {
 		dev_warn(dev, "Unable to read 'axera,boot-device-id'");
 		priv->bootdev = -1U;
 	}
 
-	ret = init_hwinfo_proc(priv);
-	if (ret < 0) {
-		dev_err(dev, "Failed to create hwinfo proc\n");
-		return ret;
+	if (of_property_read_string(dev->of_node, "axera,safety-abort-name",
+				&priv->safety_abort_name)) {
+		dev_warn(dev, "Unable to read 'axera,safety-abort-name'");
+		priv->safety_abort_name = NULL;
+	}
+
+	if (of_property_read_u32(dev->of_node, "axera,safety-abort",
+				&priv->safety_abort)) {
+		dev_warn(dev, "Unable to read 'axera,safety-abort'");
+		priv->safety_abort = -1U;
+	}
+
+	if (of_property_read_string(dev->of_node, "axera,main-abort-name",
+				&priv->main_abort_name)) {
+		dev_warn(dev, "Unable to read 'axera,main-abort-name'");
+		priv->main_abort_name = NULL;
+	}
+
+	if (of_property_read_u32(dev->of_node, "axera,main-abort",
+				&priv->main_abort)) {
+		dev_warn(dev, "Unable to read 'axera,main-abort'");
+		priv->main_abort = -1U;
+	}
+
+	if (of_property_read_string(dev->of_node, "axera,version",
+				&priv->version)) {
+		dev_warn(dev, "Unable to read 'axera,version'");
+		priv->version = NULL;
 	}
 
 	dev_info(dev, "%s: done\n", __func__);
@@ -393,7 +469,10 @@ static int hwinfo_probe(struct platform_device *pdev)
 
 static int hwinfo_remove(struct platform_device *pdev)
 {
-	remove_hwinfo_proc();
+	if (hwinfo_priv) {
+		devm_kfree(hwinfo_priv->dev, hwinfo_priv);
+		hwinfo_priv = NULL;
+	}
 	return 0;
 }
 
@@ -413,6 +492,26 @@ static struct platform_driver hwinfo_driver = {
 };
 module_platform_driver(hwinfo_driver);
 
+static int __init hwinfo_init(void)
+{
+	int ret;
+
+	ret = init_hwinfo_proc();
+	if (ret < 0) {
+		pr_err("Failed to create hwinfo proc\n");
+		return ret;
+	}
+	return 0;
+}
+
+static void __exit hwinfo_exit(void)
+{
+	remove_hwinfo_proc();
+}
+
+late_initcall(hwinfo_init);
+module_exit(hwinfo_exit);
+
 MODULE_DESCRIPTION("hardware-specific information display driver");
-MODULE_AUTHOR("Charleye <wangkart@aliyun.com.com>");
+MODULE_AUTHOR("Charleye <wangkart@aliyun.com>");
 MODULE_LICENSE("GPL v2");
