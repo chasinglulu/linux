@@ -620,13 +620,13 @@ static int dw8250_probe(struct platform_device *pdev)
 	if (!p->uartclk)
 		return dev_err_probe(dev, -EINVAL, "clock rate not defined\n");
 
-	data->pclk = devm_clk_get_optional(dev, "apb_pclk");
+	data->pclk = devm_clk_get_optional(dev, "apbclk");
 	if (IS_ERR(data->pclk))
 		return PTR_ERR(data->pclk);
 
 	err = clk_prepare_enable(data->pclk);
 	if (err)
-		return dev_err_probe(dev, err, "could not enable apb_pclk\n");
+		return dev_err_probe(dev, err, "could not enable apbclk\n");
 
 	err = devm_add_action_or_reset(dev, dw8250_clk_disable_unprepare, data->pclk);
 	if (err)
@@ -642,7 +642,7 @@ static int dw8250_probe(struct platform_device *pdev)
 	if (err)
 		return err;
 
-	data->prst = devm_reset_control_get_optional_exclusive(dev, "apb_rst");
+	data->prst = devm_reset_control_get_optional_exclusive(dev, "apbrst");
 	if (IS_ERR(data->prst))
 		return PTR_ERR(data->prst);
 

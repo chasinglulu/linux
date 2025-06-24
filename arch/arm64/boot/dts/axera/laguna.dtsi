@@ -248,9 +248,9 @@
 			clock-frequency = <192000000>; //192MHz
 			resets = <&periph_sysrst_0 PERIPH_UART1_SW_RST>,
 			         <&periph_sysrst_0 PERIPH_UART1_SW_PRST>;
-			reset-names = "baudrst", "apb_prst";
+			reset-names = "baudrst", "apbrst";
 			clocks = <&clk_periph_uart1>, <&pclk_periph_uart1>;
-			clock-names = "baudclk", "apb_pclk";
+			clock-names = "baudclk", "apbclk";
 			syscons = <&uart_xfer_sel 0 UART_XFER_RS232_4LINE>;
 			syscon-names = "xfersel";
 			reg-io-width = <4>;
@@ -265,9 +265,9 @@
 			clock-frequency = <192000000>; //192MHz
 			resets = <&periph_sysrst_0 PERIPH_UART2_SW_RST>,
 			         <&periph_sysrst_0 PERIPH_UART2_SW_PRST>;
-			reset-names = "baudrst", "apb_prst";
+			reset-names = "baudrst", "apbrst";
 			clocks = <&clk_periph_uart2>, <&pclk_periph_uart2>;
-			clock-names = "baudclk", "apb_pclk";
+			clock-names = "baudclk", "apbclk";
 			syscons = <&uart_xfer_sel 2 UART_XFER_RS232_4LINE>;
 			syscon-names = "xfersel";
 			reg-io-width = <4>;
@@ -282,9 +282,9 @@
 			clock-frequency = <192000000>; //192MHz
 			resets = <&periph_sysrst_0 PERIPH_UART3_SW_RST>,
 			         <&periph_sysrst_0 PERIPH_UART3_SW_PRST>;
-			reset-names = "baudrst", "apb_prst";
+			reset-names = "baudrst", "apbrst";
 			clocks = <&clk_periph_uart3>, <&pclk_periph_uart3>;
-			clock-names = "baudclk", "apb_pclk";
+			clock-names = "baudclk", "apbclk";
 			syscons = <&uart_xfer_sel 4 UART_XFER_RS232_4LINE>;
 			syscon-names = "xfersel";
 			reg-io-width = <4>;
@@ -299,9 +299,9 @@
 			clock-frequency = <192000000>; //192MHz
 			resets = <&periph_sysrst_0 PERIPH_UART4_SW_RST>,
 			         <&periph_sysrst_0 PERIPH_UART4_SW_PRST>;
-			reset-names = "baudrst", "apb_prst";
+			reset-names = "baudrst", "apbrst";
 			clocks = <&clk_periph_uart4>, <&pclk_periph_uart4>;
-			clock-names = "baudclk", "apb_pclk";
+			clock-names = "baudclk", "apbclk";
 			syscons = <&uart_xfer_sel 6 UART_XFER_RS232_2LINE>;
 			syscon-names = "xfersel";
 			reg-io-width = <4>;
@@ -316,9 +316,9 @@
 			clock-frequency = <192000000>; //192MHz
 			resets = <&periph_sysrst_0 PERIPH_UART5_SW_RST>,
 			         <&periph_sysrst_0 PERIPH_UART5_SW_PRST>;
-			reset-names = "baudrst", "apb_prst";
+			reset-names = "baudrst", "apbrst";
 			clocks = <&clk_periph_uart5>, <&pclk_periph_uart5>;
-			clock-names = "baudclk", "apb_pclk";
+			clock-names = "baudclk", "apbclk";
 			syscons = <&uart_xfer_sel 8 UART_XFER_RS232_2LINE>;
 			syscon-names = "xfersel";
 			reg-io-width = <4>;
@@ -333,9 +333,9 @@
 			interrupt-names = "periph_sys_fab";
 			resets = <&periph_sysrst_1 PERIPH_ISO_SW_PRST>,
 			         <&periph_sysrst_1 PERIPH_ISO_24M_SW_RST>;
-			reset-names = "apb_prst", "isom_rst";
+			reset-names = "apbrst", "isom_rst";
 			clocks = <&pclk_periph_iso>, <&clk_periph_iso_24m>;
-			clock-names = "apb_pclk", "isom_clk";
+			clock-names = "apbclk", "isom_clk";
 			axera,isom-timeout = <1>;
 			// axera,isom-bypass;
 			axera,isom-fabirq = <&periph_glb FAB_PERIPH_IRQ>;
@@ -356,7 +356,7 @@
 			clock-names = "ssi_clk", "pclk";
 			resets = <&flash_sysrst FLASH_SPIFLASH_SW_RST>,
 			         <&flash_sysrst FLASH_SPIFLASH_SW_HRST>;
-			reset-names = "spi", "apb_prst";
+			reset-names = "spi", "apbrst";
 			status = "disabled";
 
 			spinor0: spinor@0 {
