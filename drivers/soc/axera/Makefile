@@ -4,3 +4,4 @@ obj-$(CONFIG_AXERA_FUSA_SUPPORT)    += fusa/
 obj-$(CONFIG_SUBSYS_CONTROLLER)     += glbcon/
 obj-y                               += bus_iso/
 obj-y                               += hwinfo/
+obj-$(CONFIG_AXERA_ABC_SYSCON)      += abc_syscon.o

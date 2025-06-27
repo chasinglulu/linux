@@ -59,4 +59,10 @@ config AXERA_HW_INFO
 	help
 	  If this is set, it will enable hardware-specific information display driver.
 
+config AXERA_ABC_SYSCON
+	tristate "Axera ABC Driver based on SYSCON"
+	depends on MFD_SYSCON
+	help
+	  This option enables the Axera ABC driver based on SYSCON.
+
 endmenu
