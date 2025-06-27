@@ -36,6 +36,8 @@ static const char *proc_entry_name[] = {
 	[PROC_ABORT_MAIN]   = "main-abort",
 	[PROC_ABORT_SAFETY] = "safety-abort",
 	[PROC_VERSION]      = "sdk_version",
+	[PROC_CHIP_TYPE]    = "chip-type",
+	[PROC_BOOT_SLOT]    = "boot-slot",
 };
 
 #define UID_EFUSE_OFFSET    0x0
@@ -323,6 +325,33 @@ static struct proc_ops hwinfo_version_fops = {
 	.proc_lseek      = seq_lseek,
 };
 
+static int hwinfo_bootslot_proc_show(struct seq_file *m, void *v)
+{
+	if (unlikely(!hwinfo_priv)) {
+		pr_err("Could get hwinfo within %s\n", __func__);
+		return -EINVAL;
+	}
+
+	if (hwinfo_priv->bootslot >= 0 && hwinfo_priv->bootslot <= 1)
+		seq_printf(m, "Boot Slot: %c\n", 'A' + hwinfo_priv->bootslot);
+	else
+		seq_printf(m, "Boot Slot: Unknown\n");
+
+	return 0;
+}
+
+static int hwinfo_bootslot_proc_open(struct inode *inode, struct file *file)
+{
+	return single_open(file, hwinfo_bootslot_proc_show, NULL);
+}
+
+static struct proc_ops hwinfo_bootslot_fops = {
+	.proc_open       = hwinfo_bootslot_proc_open,
+	.proc_release    = single_release,
+	.proc_read       = seq_read,
+	.proc_lseek      = seq_lseek,
+};
+
 static int init_hwinfo_proc(void)
 {
 	struct proc_ops *hwinfo_proc_ops[] = {
@@ -334,6 +363,8 @@ static int init_hwinfo_proc(void)
 		[PROC_ABORT_MAIN]   = &hwinfo_abort_main_fops,
 		[PROC_ABORT_SAFETY] = &hwinfo_abort_safety_fops,
 		[PROC_VERSION]      = &hwinfo_version_fops,
+		[PROC_CHIP_TYPE]    = NULL,  // Not implemented
+		[PROC_BOOT_SLOT]    = &hwinfo_bootslot_fops,
 	};
 	struct proc_dir_entry *proc_entry;
 	int i;
@@ -461,6 +492,12 @@ static int hwinfo_probe(struct platform_device *pdev)
 				&priv->version)) {
 		dev_warn(dev, "Unable to read 'axera,version'");
 		priv->version = NULL;
+	}
+
+	if (of_property_read_u32(dev->of_node, "axera,boot-slot",
+				&priv->bootslot)) {
+		dev_warn(dev, "Unable to read 'axera,boot-slot'");
+		priv->bootslot = -1U;
 	}
 
 	dev_info(dev, "%s: done\n", __func__);

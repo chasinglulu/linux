@@ -20,6 +20,7 @@ enum {
 	PROC_ABORT_SAFETY,
 	PROC_VERSION,
 	PROC_CHIP_TYPE,
+	PROC_BOOT_SLOT,
 };
 
 struct hwinfo_priv {
@@ -35,6 +36,7 @@ struct hwinfo_priv {
 	const char *main_abort_name;
 	const char *safety_abort_name;
 	const char *version;
+	uint32_t bootslot;
 };
 
 #endif
