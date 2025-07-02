@@ -34,6 +34,20 @@
 			};
 		};
 
+		fault_ctrl_unit: fcu@006C4000 {
+			compatible = "syscon", "simple-mfd";
+			reg = <0x00 0x006C4000 0x00 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			safety_abc_syscon: safety-abc-syscon {
+				compatible = "axera,laguna-abc-syscon";
+				regmap = <&fault_ctrl_unit>;
+				offset = <0x0>;
+				status = "disabled";
+			};
+		};
+
 		serial0: uart@00602000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x0 0x00602000 0x0 0x1000>;

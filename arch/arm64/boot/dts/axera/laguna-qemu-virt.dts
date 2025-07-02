@@ -47,6 +47,10 @@
 	status = "okay";
 };
 
+&safety_abc_syscon {
+	status = "okay";
+};
+
 &mmc0 {
 	status = "okay";
 };
