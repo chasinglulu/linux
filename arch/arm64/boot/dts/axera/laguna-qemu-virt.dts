@@ -32,7 +32,7 @@
 	#size-cells = <2>;
 	interrupt-parent = <&gic>;
 
-	memory@400000000 {
+	memory@100000000 {
 		reg = <0x1 0x00000000 0x2 0x00000000>;
 		device_type = "memory";
 	};
@@ -44,6 +44,10 @@
 };
 
 &hwinfo {
+	status = "okay";
+};
+
+&safety_abc_syscon {
 	status = "okay";
 };
 
